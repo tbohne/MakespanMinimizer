@@ -1,10 +1,12 @@
+import java.util.List;
+
 public class Instance {
 
     private int numOfMachines;
     private int numOfJobs;
-    private int[] processingTimes;
+    private List<Integer> processingTimes;
 
-    public Instance(int numOfMachines, int numOfJobs, int[] processingTimes) {
+    public Instance(int numOfMachines, int numOfJobs, List<Integer> processingTimes) {
         this.numOfMachines = numOfMachines;
         this.numOfJobs = numOfJobs;
         this.processingTimes = processingTimes;
@@ -18,7 +20,7 @@ public class Instance {
         return this.numOfJobs;
     }
 
-    public int[] getProcessingTimes() {
+    public List<Integer> getProcessingTimes() {
         return this.processingTimes;
     }
 }

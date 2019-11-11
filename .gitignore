@@ -1,1 +1,4 @@
 pcmax.py
+.idea/
+*.iml
+out/

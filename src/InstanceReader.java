@@ -1,6 +1,8 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class InstanceReader {
 
@@ -8,7 +10,7 @@ public class InstanceReader {
 
         int numOfMachines = 0;
         int numOfJobs = 0;
-        int[] processingTimes = new int[numOfJobs];
+        List<Integer> processingTimes = new ArrayList<>();
 
         try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
 
@@ -16,11 +18,10 @@ public class InstanceReader {
             numOfMachines = Integer.parseInt(line);
             line = reader.readLine().trim();
             numOfJobs = Integer.parseInt(line);
-            processingTimes = new int[numOfJobs];
 
             for (int idx = 0; idx < numOfJobs; idx++) {
                 line = reader.readLine().trim();
-                processingTimes[idx] = Integer.parseInt(line);
+                processingTimes.add(Integer.parseInt(line));
             }
         } catch (IOException e) {
             e.printStackTrace();
