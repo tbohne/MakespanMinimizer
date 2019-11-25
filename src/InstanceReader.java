@@ -14,13 +14,11 @@ public class InstanceReader {
 
         try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
 
-            String line = reader.readLine().trim();
-            numOfMachines = Integer.parseInt(line);
-            line = reader.readLine().trim();
-            numOfJobs = Integer.parseInt(line);
+            numOfMachines = Integer.parseInt(reader.readLine().trim());
+            numOfJobs = Integer.parseInt(reader.readLine().trim());
 
             for (int idx = 0; idx < numOfJobs; idx++) {
-                line = reader.readLine().trim();
+                String line = reader.readLine().trim();
                 processingTimes.add(Integer.parseInt(line));
             }
         } catch (IOException e) {

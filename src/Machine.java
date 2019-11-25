@@ -1,4 +1,3 @@
-import javax.xml.ws.soap.MTOM;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,6 +7,13 @@ public class Machine implements Comparable<Machine> {
 
     public Machine() {
         this.jobs = new ArrayList<>();
+    }
+
+    public Machine(Machine machine) {
+        this.jobs = new ArrayList<>();
+        for (int job : machine.getJobs()) {
+            this.jobs.add(job);
+        }
     }
 
     public void setJob(int processingTime) {

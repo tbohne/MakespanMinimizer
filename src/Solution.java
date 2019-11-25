@@ -13,11 +13,26 @@ public class Solution {
         this.machineAllocations = new ArrayList<>();
     }
 
+    public Solution(Solution sol) {
+        this.numOfMachines = sol.numOfMachines;
+        this.numOfJobs = sol.numOfJobs;
+        this.machineAllocations = new ArrayList<>();
+        for (Machine m : sol.getMachineAllocations()) {
+            Machine copyMachine = new Machine(m);
+            this.machineAllocations.add(copyMachine);
+        }
+    }
+
     public void setMachineAllocations(List<Machine> machineAllocations) {
         this.machineAllocations = machineAllocations;
     }
 
+    public List<Machine> getMachineAllocations() {
+        return this.machineAllocations;
+    }
+
     public boolean isFeasible() {
+        // TODO: implement feasibility check
         return true;
     }
 
