@@ -3,19 +3,16 @@ import java.util.List;
 
 public class Solution {
 
-    private int numOfMachines;
-    private int numOfJobs;
+    private Instance instance;
     private List<Machine> machineAllocations;
 
-    public Solution(int numOfMachines, int numOfJobs) {
-        this.numOfMachines = numOfMachines;
-        this.numOfJobs = numOfJobs;
+    public Solution(Instance instance) {
+        this.instance = instance;
         this.machineAllocations = new ArrayList<>();
     }
 
     public Solution(Solution sol) {
-        this.numOfMachines = sol.numOfMachines;
-        this.numOfJobs = sol.numOfJobs;
+        this.instance = new Instance(sol.instance);
         this.machineAllocations = new ArrayList<>();
         for (Machine m : sol.getMachineAllocations()) {
             Machine copyMachine = new Machine(m);
@@ -32,8 +29,22 @@ public class Solution {
     }
 
     public boolean isFeasible() {
-        // TODO: implement feasibility check
-        return true;
+
+        List<Integer> processingTimesCopy = new ArrayList<>();
+        for (int p : this.instance.getProcessingTimes()) {
+            processingTimesCopy.add(p);
+        }
+
+        // check whether each job (represented by processing time) is assigned to a machine and not more
+        for (Machine m : this.getMachineAllocations()) {
+
+            for (int processingTime : m.getJobs()) {
+                if (!processingTimesCopy.contains(processingTime)) { return false; }
+                processingTimesCopy.remove(processingTimesCopy.indexOf(processingTime));
+            }
+        }
+
+        return processingTimesCopy.size() == 0;
     }
 
     public int getMakespan() {
@@ -49,8 +60,8 @@ public class Solution {
     @Override
     public String toString() {
         String str = "";
-        str += this.numOfMachines + "\n";
-        str += this.numOfJobs + "\n";
+        str += this.instance.getNumOfMachines() + "\n";
+        str += this.instance.getNumOfJobs() + "\n";
         for (Machine m : this.machineAllocations) {
             for (int j : m.getJobs()) {
                 str += j + " ";
