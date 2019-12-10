@@ -25,7 +25,7 @@ public class HeuristicSolver {
             m.setJob(job);
             machines.add(m);
         }
-        Solution sol = new Solution(instance.getNumOfMachines(), instance.getNumOfJobs());
+        Solution sol = new Solution(instance);
         List<Machine> machineAllocations = new ArrayList<>();
         for (Machine m : machines) {
             machineAllocations.add(m);
@@ -36,10 +36,7 @@ public class HeuristicSolver {
 
     public static Solution solve(Instance instance) {
         Solution initialSol =  solveWithLPT(instance);
-        ShiftOperator shift = new ShiftOperator();
-        HillClimbing hillClimbing = new HillClimbing(2000, ShortTermStrategies.BEST_FIT, shift);
-        System.out.println("initial sol: " + initialSol.getMakespan());
-        LocalSearch search = new LocalSearch(initialSol, 0, 5, hillClimbing);
-        return search.solve();
+        Solution partSol = PartitionApproach.solve(instance);
+        return initialSol.getMakespan() < partSol.getMakespan() ? initialSol : partSol;
     }
 }
