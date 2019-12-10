@@ -17,6 +17,13 @@ public class PartialSolution implements Comparable<PartialSolution> {
         }
     }
 
+    public PartialSolution(PartialSolution other) {
+        this.machineAllocations = new ArrayList<>();
+        for (Machine m : other.getMachineAllocations()) {
+            this.machineAllocations.add(new Machine(m));
+        }
+    }
+
     public List<Machine> getMachineAllocations() {
         return this.machineAllocations;
     }
