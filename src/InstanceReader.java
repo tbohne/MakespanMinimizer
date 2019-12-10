@@ -25,6 +25,6 @@ public class InstanceReader {
             e.printStackTrace();
         }
 
-        return new Instance(numOfMachines, numOfJobs, processingTimes);
+        return new Instance(numOfMachines, processingTimes);
     }
 }

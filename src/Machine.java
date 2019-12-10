@@ -43,6 +43,6 @@ public class Machine implements Comparable<Machine> {
         for (int job : this.jobs) {
             str += job + " ";
         }
-        return str;
+        return str.isEmpty() ? "--------------------\n" : str + "\n";
     }
 }
