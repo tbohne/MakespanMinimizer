@@ -1,15 +1,22 @@
+import java.util.ArrayList;
 import java.util.List;
 
 public class Instance {
 
     private int numOfMachines;
-    private int numOfJobs;
     private List<Integer> processingTimes;
 
-    public Instance(int numOfMachines, int numOfJobs, List<Integer> processingTimes) {
+    public Instance(int numOfMachines, List<Integer> processingTimes) {
         this.numOfMachines = numOfMachines;
-        this.numOfJobs = numOfJobs;
         this.processingTimes = processingTimes;
+    }
+
+    public Instance(Instance instance) {
+        this.numOfMachines = instance.getNumOfMachines();
+        this.processingTimes = new ArrayList<>();
+        for (int processingTime : instance.getProcessingTimes()) {
+            processingTimes.add(processingTime);
+        }
     }
 
     public int getNumOfMachines() {
@@ -17,7 +24,7 @@ public class Instance {
     }
 
     public int getNumOfJobs() {
-        return this.numOfJobs;
+        return this.processingTimes.size();
     }
 
     public List<Integer> getProcessingTimes() {
