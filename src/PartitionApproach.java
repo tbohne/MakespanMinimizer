@@ -2,11 +2,11 @@ import java.util.*;
 
 public class PartitionApproach {
 
-    public static void solve(Instance instance) {
-        determiningPartialSolutions(instance);
+    public static Solution solve(Instance instance) {
+        return determiningPartialSolutions(instance);
     }
 
-    private static void determiningPartialSolutions(Instance instance) {
+    private static Solution determiningPartialSolutions(Instance instance) {
 
         List<Integer> jobs = instance.getProcessingTimes();
         Collections.sort(jobs);
@@ -23,7 +23,7 @@ public class PartitionApproach {
         // DBG
         assert sol.getPartialSolutions().get(p).computeGap() == jobs.get(0);
 
-        System.out.println("gap: " + sol.getPartialSolutions().get(p).computeGap());
+//        System.out.println("gap: " + sol.getPartialSolutions().get(p).computeGap());
 
         // construction
         for (int job = 1; job < jobs.size(); job++) {
@@ -31,11 +31,11 @@ public class PartitionApproach {
             // compute partial solution with biggest gap
             PartialSolution maxGapPartSol = Collections.max(sol.getPartialSolutions());
 
-            System.out.println("gap: " + maxGapPartSol.computeGap());
+//            System.out.println("gap: " + maxGapPartSol.computeGap());
 
             if (jobs.get(job) <= maxGapPartSol.computeGap()) {
 
-                System.out.println("IF");
+//                System.out.println("IF");
 
                 // the total processing time needed for the m-th machine to perform all its jobs
                 // is updated (the job is added to it)
@@ -52,35 +52,37 @@ public class PartitionApproach {
 
                 assert expectedDelta == actualDelta;
                 /////////////////////////////////////////////////////////////////////////
-            }
+            } else {
 
-            if (jobs.get(job) > maxGapPartSol.computeGap()) {
-                System.out.println("ELSE");
+            // PROBLEM: HERE WE CAN GET DUPLICATES !!!!!
+
+//            if (jobs.get(job) > maxGapPartSol.computeGap()) {
+//                System.out.println("ELSE");
 
                 p += 1;
                 // new partial solution
 
                 // DBG
-//                if (p >= sol.getPartialSolutions().size()) {
-//                    sol.getPartialSolutions().add(new PartialSolution(instance.getNumOfMachines()));
-//                }
+                if (p >= sol.getPartialSolutions().size()) {
+                    sol.getPartialSolutions().add(new PartialSolution(instance.getNumOfMachines()));
+                }
 
                 sol.getPartialSolutions().get(p).getMachineAllocations().get(0).getJobs().add(jobs.get(job));
             }
         }
 
-        for (PartialSolution ps : sol.getPartialSolutions()) {
-            System.out.println("###################################");
-            System.out.println("---- PARTIAL SOLUTION: " + sol.getPartialSolutions().indexOf(ps));
-            System.out.println(ps);
-            System.out.println("###################################");
-        }
-        sumPartialSolutions(sol, p, instance.getNumOfMachines());
+//        for (PartialSolution ps : sol.getPartialSolutions()) {
+//            System.out.println("###################################");
+//            System.out.println("---- PARTIAL SOLUTION: " + sol.getPartialSolutions().indexOf(ps));
+//            System.out.println(ps);
+//            System.out.println("###################################");
+//        }
+        return sumPartialSolutions(sol, p, instance);
     }
 
-    public static void sumPartialSolutions(SolutionNewApproach sol, int p, int numOfMachines) {
+    public static Solution sumPartialSolutions(SolutionNewApproach sol, int p, Instance instance) {
 
-        System.out.println("partial solutions: " + sol.getPartialSolutions().size());
+//        System.out.println("partial solutions: " + sol.getPartialSolutions().size());
 
         // return optimal solution
         if (sol.getPartialSolutions().size() == 1) {
@@ -94,20 +96,21 @@ public class PartitionApproach {
 
             // select two ordered partial solutions with biggest gaps
             Collections.sort(sol.getPartialSolutions());
+            // TODO: check whether we need to reverse here
             Collections.reverse(sol.getPartialSolutions());
 
             // the two partial solutions with highest gaps
             PartialSolution p1 = sol.getPartialSolutions().get(0);
             PartialSolution p2 = sol.getPartialSolutions().get(1);
 
-            PartialSolution newPartial = new PartialSolution(numOfMachines);
+            PartialSolution newPartial = new PartialSolution(instance.getNumOfMachines());
 
             for (int machineIdx = 0; machineIdx < p1.getMachineAllocations().size(); machineIdx++) {
                 List<Integer> jobs = new ArrayList<>();
                 for (int job : p1.getMachineAllocations().get(machineIdx).getJobs()) {
                     jobs.add(job);
                 }
-                for (int job : p2.getMachineAllocations().get(numOfMachines - 1 - machineIdx).getJobs()) {
+                for (int job : p2.getMachineAllocations().get(instance.getNumOfMachines() - 1 - machineIdx).getJobs()) {
                     jobs.add(job);
                 }
                 for (int job : jobs) {
@@ -119,8 +122,27 @@ public class PartitionApproach {
             sol.getPartialSolutions().add(newPartial);
         }
 
-        System.out.println("part size: " + sol.getPartialSolutions().size());
-        System.out.println("RESULT:");
-        System.out.println(sol.getPartialSolutions().get(0));
+        ///////////////////////////////////////////////////////////////////////
+        // TODO: somehow there are several empty partitions to be removed
+        List<PartialSolution> tmp = new ArrayList<>(sol.getPartialSolutions());
+        for (int i = 0; i < sol.getPartialSolutions().size(); i++) {
+            if (sol.getPartialSolutions().get(i).isEmpty()) {
+                tmp.remove(sol.getPartialSolutions().get(i));
+            }
+        }
+        sol.setPartialSolutions(new ArrayList<>(tmp));
+        ///////////////////////////////////////////////////////////////////////
+
+
+        List<Integer> pTimes = new ArrayList<>();
+        for (Machine m : sol.getPartialSolutions().get(0).getMachineAllocations()) {
+            pTimes.add(m.getProcessingTime());
+        }
+//        System.out.println("time: " + Collections.max(pTimes));
+
+        Solution finalSol = new Solution(instance);
+        finalSol.setMachineAllocations(sol.getPartialSolutions().get(0).getMachineAllocations());
+
+        return finalSol;
     }
 }
