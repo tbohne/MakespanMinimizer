@@ -82,17 +82,10 @@ public class PartitionApproach {
 
     public static Solution sumPartialSolutions(SolutionNewApproach sol, int p, Instance instance) {
 
-//        System.out.println("partial solutions: " + sol.getPartialSolutions().size());
-
-        // return optimal solution
-        if (sol.getPartialSolutions().size() == 1) {
-//            return sol;
-        }
-
         // construction
 
         // iterate over all partial solutions
-        for (int j = 0; j < p; j++) {
+        while (sol.getPartialSolutions().size() > 1) {
 
             // select two ordered partial solutions with biggest gaps
             Collections.sort(sol.getPartialSolutions());
@@ -121,18 +114,6 @@ public class PartitionApproach {
             sol.getPartialSolutions().remove(sol.getPartialSolutions().indexOf(p2));
             sol.getPartialSolutions().add(newPartial);
         }
-
-        ///////////////////////////////////////////////////////////////////////
-        // TODO: somehow there are several empty partitions to be removed
-        List<PartialSolution> tmp = new ArrayList<>(sol.getPartialSolutions());
-        for (int i = 0; i < sol.getPartialSolutions().size(); i++) {
-            if (sol.getPartialSolutions().get(i).isEmpty()) {
-                tmp.remove(sol.getPartialSolutions().get(i));
-            }
-        }
-        sol.setPartialSolutions(new ArrayList<>(tmp));
-        ///////////////////////////////////////////////////////////////////////
-
 
         List<Integer> pTimes = new ArrayList<>();
         for (Machine m : sol.getPartialSolutions().get(0).getMachineAllocations()) {
