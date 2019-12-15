@@ -25,6 +25,6 @@ public class InstanceReader {
             e.printStackTrace();
         }
 
-        return new Instance(numOfMachines, processingTimes);
+        return new Instance(numOfMachines, processingTimes, filename.replace("res/instances/", "").replace(".txt", ""));
     }
 }

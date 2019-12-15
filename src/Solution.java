@@ -57,6 +57,10 @@ public class Solution {
         return makespan;
     }
 
+    public String getNameOfSolvedInstance() {
+        return this.instance.getName();
+    }
+
     @Override
     public String toString() {
         String str = "";

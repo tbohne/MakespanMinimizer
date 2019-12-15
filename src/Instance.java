@@ -5,18 +5,25 @@ public class Instance {
 
     private int numOfMachines;
     private List<Integer> processingTimes;
+    private String name;
 
-    public Instance(int numOfMachines, List<Integer> processingTimes) {
+    public Instance(int numOfMachines, List<Integer> processingTimes, String name) {
         this.numOfMachines = numOfMachines;
         this.processingTimes = processingTimes;
+        this.name = name;
     }
 
     public Instance(Instance instance) {
         this.numOfMachines = instance.getNumOfMachines();
         this.processingTimes = new ArrayList<>();
+        this.name = instance.getName();
         for (int processingTime : instance.getProcessingTimes()) {
             processingTimes.add(processingTime);
         }
+    }
+
+    public String getName() {
+        return this.name;
     }
 
     public int getNumOfMachines() {
