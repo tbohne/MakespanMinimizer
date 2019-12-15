@@ -20,4 +20,30 @@ public class SolutionWriter {
             e.printStackTrace();
         }
     }
+
+    public static void writeSolutionAsCSV(String filename, Solution sol, String solver) {
+        try {
+            File file = new File(filename);
+            boolean newFile = false;
+            if (!file.exists()) {
+                file.createNewFile();
+                newFile = true;
+            }
+            FileWriter fw = new FileWriter(file, true);
+            BufferedWriter bw = new BufferedWriter(fw);
+
+            if (newFile) {
+                bw.write("instance,solver,runtime,obj\n");
+            }
+            if (sol.isFeasible()) {
+                // TODO: add runtime
+                bw.write(sol.getNameOfSolvedInstance() + "," + solver + "," + 0.0 + "," + sol.getMakespan() + "\n");
+            }
+
+            bw.close();
+            fw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
