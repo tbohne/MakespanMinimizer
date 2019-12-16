@@ -37,4 +37,14 @@ public class Instance {
     public List<Integer> getProcessingTimes() {
         return this.processingTimes;
     }
+
+    @Override
+    public String toString() {
+        String str = "machines: " + this.getNumOfMachines() + "\n";
+        str += "jobs: " + this.getNumOfJobs() + "\n";
+        for (int processingTime : this.getProcessingTimes()) {
+            str += processingTime + " ";
+        }
+        return str + "\n";
+    }
 }
