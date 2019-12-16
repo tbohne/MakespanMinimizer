@@ -1,10 +1,14 @@
-package PCMAX;
+package PCMAX.local_search;
+
+import PCMAX.Instance;
+import PCMAX.Machine;
+import PCMAX.Solution;
 
 import java.util.*;
 
-public class HeuristicSolver {
+public class LPTSolver {
 
-    public static Solution solveWithLPT(Instance instance) {
+    public static Solution solve(Instance instance) {
         Queue<Machine> machines = new PriorityQueue<>();
         List<Integer> jobs = instance.getProcessingTimes();
 
@@ -26,11 +30,5 @@ public class HeuristicSolver {
         }
         sol.setMachineAllocations(machineAllocations);
         return sol;
-    }
-
-    public static Solution solve(Instance instance) {
-        Solution initialSol =  solveWithLPT(instance);
-        Solution partSol = PartitionApproach.solve(instance);
-        return initialSol.getMakespan() < partSol.getMakespan() ? initialSol : partSol;
     }
 }

@@ -1,14 +1,26 @@
 package PCMAX;
 
+import PCMAX.local_search.LPTSolver;
+
 import java.util.*;
 
-public class PartitionApproach {
+public class PartitionHeuristic {
 
-    public static Solution solve(Instance instance) {
-        return determiningPartialSolutions(instance);
+    private final Instance instance;
+    private final double timeLimit;
+
+    public PartitionHeuristic(Instance instance, double timeLimit) {
+        this.instance = instance;
+        this.timeLimit = timeLimit;
     }
 
-    private static Solution determiningPartialSolutions(Instance instance) {
+    public Solution solve(Instance instance) {
+        Solution initialSol = LPTSolver.solve(instance);
+        Solution partSol = determiningPartialSolutions(instance);
+        return initialSol.getMakespan() < partSol.getMakespan() ? initialSol : partSol;
+    }
+
+    private Solution determiningPartialSolutions(Instance instance) {
 
         List<Integer> jobs = instance.getProcessingTimes();
         Collections.sort(jobs);
@@ -17,7 +29,7 @@ public class PartitionApproach {
 
         // partial solution index
         int p = 0;
-        SolutionNewApproach sol = new SolutionNewApproach(instance.getNumOfMachines());
+        PartialSolutionContainer sol = new PartialSolutionContainer(instance.getNumOfMachines());
 
         // get partial solution p (0) and add job 0 to its first machine
         sol.getPartialSolutions().get(p).getMachineAllocations().get(0).getJobs().add(jobs.get(0));
@@ -25,19 +37,13 @@ public class PartitionApproach {
         // DBG
         assert sol.getPartialSolutions().get(p).computeGap() == jobs.get(0);
 
-//        System.out.println("gap: " + sol.getPartialSolutions().get(p).computeGap());
-
         // construction
         for (int job = 1; job < jobs.size(); job++) {
 
             // compute partial solution with biggest gap
             PartialSolution maxGapPartSol = Collections.max(sol.getPartialSolutions());
 
-//            System.out.println("gap: " + maxGapPartSol.computeGap());
-
             if (jobs.get(job) <= maxGapPartSol.computeGap()) {
-
-//                System.out.println("IF");
 
                 // the total processing time needed for the m-th machine to perform all its jobs
                 // is updated (the job is added to it)
@@ -56,13 +62,7 @@ public class PartitionApproach {
                 /////////////////////////////////////////////////////////////////////////
             } else {
 
-            // PROBLEM: HERE WE CAN GET DUPLICATES !!!!!
-
-//            if (jobs.get(job) > maxGapPartSol.computeGap()) {
-//                System.out.println("ELSE");
-
                 p += 1;
-                // new partial solution
 
                 // DBG
                 if (p >= sol.getPartialSolutions().size()) {
@@ -72,17 +72,10 @@ public class PartitionApproach {
                 sol.getPartialSolutions().get(p).getMachineAllocations().get(0).getJobs().add(jobs.get(job));
             }
         }
-
-//        for (PCMAX.PartialSolution ps : sol.getPartialSolutions()) {
-//            System.out.println("###################################");
-//            System.out.println("---- PARTIAL SOLUTION: " + sol.getPartialSolutions().indexOf(ps));
-//            System.out.println(ps);
-//            System.out.println("###################################");
-//        }
         return sumPartialSolutions(sol, p, instance);
     }
 
-    public static Solution sumPartialSolutions(SolutionNewApproach sol, int p, Instance instance) {
+    private Solution sumPartialSolutions(PartialSolutionContainer sol, int p, Instance instance) {
 
         // construction
 

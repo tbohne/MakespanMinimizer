@@ -37,11 +37,11 @@ public class Test {
             Solution mipSol = mip.solve();
 
             double startTime = System.currentTimeMillis();
-            Solution trivialSol = HeuristicSolver.solveWithLPT(instance);
+            Solution trivialSol = PartitionHeuristic.solveWithLPT(instance);
             trivialSol.setTimeToSolve((System.currentTimeMillis() - startTime) / 1000.0);
 
             startTime = System.currentTimeMillis();
-            Solution sol = HeuristicSolver.solve(instance);
+            Solution sol = PartitionHeuristic.solve(instance);
             sol.setTimeToSolve((System.currentTimeMillis() - startTime) / 1000.0);
 
             if (sol.isFeasible() && mipSol.isFeasible() && trivialSol.isFeasible()) {
