@@ -1,5 +1,7 @@
 package PCMAX;
 
+import PCMAX.local_search.LPTSolver;
+
 import java.io.File;
 import java.util.Arrays;
 
@@ -37,11 +39,13 @@ public class Test {
             Solution mipSol = mip.solve();
 
             double startTime = System.currentTimeMillis();
-            Solution trivialSol = PartitionHeuristic.solveWithLPT(instance);
+            Solution trivialSol = LPTSolver.solve(instance);
             trivialSol.setTimeToSolve((System.currentTimeMillis() - startTime) / 1000.0);
 
             startTime = System.currentTimeMillis();
-            Solution sol = PartitionHeuristic.solve(instance);
+
+            PartitionHeuristic heu = new PartitionHeuristic(instance, TIME_LIMIT);
+            Solution sol = heu.solve();
             sol.setTimeToSolve((System.currentTimeMillis() - startTime) / 1000.0);
 
             if (sol.isFeasible() && mipSol.isFeasible() && trivialSol.isFeasible()) {

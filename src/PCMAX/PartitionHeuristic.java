@@ -6,6 +6,8 @@ import java.util.*;
 
 public class PartitionHeuristic {
 
+    // TODO: implement time limit
+
     private final Instance instance;
     private final double timeLimit;
 
@@ -14,22 +16,22 @@ public class PartitionHeuristic {
         this.timeLimit = timeLimit;
     }
 
-    public Solution solve(Instance instance) {
-        Solution initialSol = LPTSolver.solve(instance);
-        Solution partSol = determiningPartialSolutions(instance);
+    public Solution solve() {
+        Solution initialSol = LPTSolver.solve(this.instance);
+        Solution partSol = determiningPartialSolutions();
         return initialSol.getMakespan() < partSol.getMakespan() ? initialSol : partSol;
     }
 
-    private Solution determiningPartialSolutions(Instance instance) {
+    private Solution determiningPartialSolutions() {
 
-        List<Integer> jobs = instance.getProcessingTimes();
+        List<Integer> jobs = this.instance.getProcessingTimes();
         Collections.sort(jobs);
         // order jobs non-increasingly
         Collections.reverse(jobs);
 
         // partial solution index
         int p = 0;
-        PartialSolutionContainer sol = new PartialSolutionContainer(instance.getNumOfMachines());
+        PartialSolutionContainer sol = new PartialSolutionContainer(this.instance.getNumOfMachines());
 
         // get partial solution p (0) and add job 0 to its first machine
         sol.getPartialSolutions().get(p).getMachineAllocations().get(0).getJobs().add(jobs.get(0));
@@ -66,16 +68,16 @@ public class PartitionHeuristic {
 
                 // DBG
                 if (p >= sol.getPartialSolutions().size()) {
-                    sol.getPartialSolutions().add(new PartialSolution(instance.getNumOfMachines()));
+                    sol.getPartialSolutions().add(new PartialSolution(this.instance.getNumOfMachines()));
                 }
 
                 sol.getPartialSolutions().get(p).getMachineAllocations().get(0).getJobs().add(jobs.get(job));
             }
         }
-        return sumPartialSolutions(sol, p, instance);
+        return sumPartialSolutions(sol, p);
     }
 
-    private Solution sumPartialSolutions(PartialSolutionContainer sol, int p, Instance instance) {
+    private Solution sumPartialSolutions(PartialSolutionContainer sol, int p) {
 
         // construction
 
@@ -91,14 +93,14 @@ public class PartitionHeuristic {
             PartialSolution p1 = sol.getPartialSolutions().get(0);
             PartialSolution p2 = sol.getPartialSolutions().get(1);
 
-            PartialSolution newPartial = new PartialSolution(instance.getNumOfMachines());
+            PartialSolution newPartial = new PartialSolution(this.instance.getNumOfMachines());
 
             for (int machineIdx = 0; machineIdx < p1.getMachineAllocations().size(); machineIdx++) {
                 List<Integer> jobs = new ArrayList<>();
                 for (int job : p1.getMachineAllocations().get(machineIdx).getJobs()) {
                     jobs.add(job);
                 }
-                for (int job : p2.getMachineAllocations().get(instance.getNumOfMachines() - 1 - machineIdx).getJobs()) {
+                for (int job : p2.getMachineAllocations().get(this.instance.getNumOfMachines() - 1 - machineIdx).getJobs()) {
                     jobs.add(job);
                 }
                 for (int job : jobs) {
@@ -116,7 +118,7 @@ public class PartitionHeuristic {
         }
 //        System.out.println("time: " + Collections.max(pTimes));
 
-        Solution finalSol = new Solution(instance);
+        Solution finalSol = new Solution(this.instance);
         finalSol.setMachineAllocations(sol.getPartialSolutions().get(0).getMachineAllocations());
 
         return finalSol;
