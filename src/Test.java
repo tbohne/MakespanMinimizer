@@ -6,6 +6,16 @@ public class Test {
     private static final String INSTANCE_PREFIX = "res/instances/";
     private static final String SOLUTION_PREFIX = "res/solutions/";
 
+    /********************** CPLEX CONFIG **********************/
+    private static final boolean HIDE_CPLEX_OUTPUT = true;
+    // 1 --> feasibility over optimality
+    private static final int MIP_EMPHASIS = 1;
+    // 0 --> only terminating with optimal solutions before time limit
+    private static final double MIP_TOLERANCE = 0.0;
+    /**********************************************************/
+
+    private static final double TIME_LIMIT = 500.0;
+
     public static void main(String[] args) {
 
         File dir = new File(INSTANCE_PREFIX);
@@ -15,31 +25,31 @@ public class Test {
 
         for (File file : directoryListing) {
 
-            String instanceName = file.toString().replace("res/instances/", "").replace(".txt", "");
+            String instanceName = file.toString().replace(INSTANCE_PREFIX, "").replace(".txt", "");
             System.out.println("working on: " + instanceName);
             Instance instance = InstanceReader.readInstance(INSTANCE_PREFIX + instanceName + ".txt");
             String solutionName = instanceName.replace("instance", "sol");
 
+            MIPFormulation mip = new MIPFormulation(instance, TIME_LIMIT, HIDE_CPLEX_OUTPUT, MIP_EMPHASIS, MIP_TOLERANCE);
 
-            // TODO: could be toString() for instance
-//            System.out.println("machines: " + instance.getNumOfMachines());
-//            System.out.println("jobs: " + instance.getNumOfJobs());
-//            for (int processingTime : instance.getProcessingTimes()) {
-//                System.out.print(processingTime + " ");
-//            }
-
+            Solution mipSol = mip.solve();
+            Solution trivialSol = HeuristicSolver.solveWithLPT(instance);
             Solution sol = HeuristicSolver.solve(instance);
 
-            if (sol.isFeasible()) {
-                System.out.println("final: " + sol.getMakespan());
-//        System.out.println(sol);
-                SolutionWriter.writeSolution(SOLUTION_PREFIX + solutionName + ".txt", sol);
+            if (sol.isFeasible() && mipSol.isFeasible() && trivialSol.isFeasible()) {
+//                System.out.println("lpt: " + trivialSol.getMakespan());
+//                System.out.println("sps: " + sol.getMakespan());
+//                System.out.println("opt: " + mipSol.getMakespan());
+//                SolutionWriter.writeSolution(SOLUTION_PREFIX + solutionName + ".txt", sol);
+
+                SolutionWriter.writeSolutionAsCSV(SOLUTION_PREFIX + "solutions.csv", trivialSol, "LPT");
+                SolutionWriter.writeSolutionAsCSV(SOLUTION_PREFIX + "solutions.csv", sol, "SPS");
+                SolutionWriter.writeSolutionAsCSV(SOLUTION_PREFIX + "solutions.csv", mipSol, "OPT");
             } else {
                 System.out.println("generated infeasible solution..");
                 System.out.println(sol);
                 System.exit(0);
             }
-
         }
     }
 }
