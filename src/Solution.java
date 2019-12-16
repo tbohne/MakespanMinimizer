@@ -5,6 +5,7 @@ public class Solution {
 
     private Instance instance;
     private List<Machine> machineAllocations;
+    private double timeToSolve;
 
     public Solution(Instance instance) {
         this.instance = instance;
@@ -18,6 +19,19 @@ public class Solution {
             Machine copyMachine = new Machine(m);
             this.machineAllocations.add(copyMachine);
         }
+        this.timeToSolve = sol.getTimeToSolveAsDouble();
+    }
+
+    public void setTimeToSolve(double timeToSolve) {
+        this.timeToSolve = timeToSolve;
+    }
+
+    public String getTimeToSolve() {
+        return String.format("%.02f", this.timeToSolve).replace(",", ".");
+    }
+
+    public double getTimeToSolveAsDouble() {
+        return this.timeToSolve;
     }
 
     public void setMachineAllocations(List<Machine> machineAllocations) {

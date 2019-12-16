@@ -49,8 +49,8 @@ public class MIPFormulation {
             double startTime = cplex.getCplexTime();
 
             if (cplex.solve()) {
-                double timeToSolve = cplex.getCplexTime() - startTime;
                 this.generateSolutionFromVariableAssignments(sol, x, cplex);
+                sol.setTimeToSolve(cplex.getCplexTime() - startTime);
             }
             cplex.end();
 

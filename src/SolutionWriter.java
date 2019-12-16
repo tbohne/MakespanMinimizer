@@ -36,8 +36,7 @@ public class SolutionWriter {
                 bw.write("instance,solver,runtime,obj\n");
             }
             if (sol.isFeasible()) {
-                // TODO: add runtime
-                bw.write(sol.getNameOfSolvedInstance() + "," + solver + "," + 0.0 + "," + sol.getMakespan() + "\n");
+                bw.write(sol.getNameOfSolvedInstance() + "," + solver + "," + sol.getTimeToSolve() + "," + sol.getMakespan() + "\n");
             }
 
             bw.close();

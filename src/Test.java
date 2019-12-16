@@ -33,8 +33,14 @@ public class Test {
             MIPFormulation mip = new MIPFormulation(instance, TIME_LIMIT, HIDE_CPLEX_OUTPUT, MIP_EMPHASIS, MIP_TOLERANCE);
 
             Solution mipSol = mip.solve();
+
+            double startTime = System.currentTimeMillis();
             Solution trivialSol = HeuristicSolver.solveWithLPT(instance);
+            trivialSol.setTimeToSolve((System.currentTimeMillis() - startTime) / 1000.0);
+
+            startTime = System.currentTimeMillis();
             Solution sol = HeuristicSolver.solve(instance);
+            sol.setTimeToSolve((System.currentTimeMillis() - startTime) / 1000.0);
 
             if (sol.isFeasible() && mipSol.isFeasible() && trivialSol.isFeasible()) {
 //                System.out.println("lpt: " + trivialSol.getMakespan());
