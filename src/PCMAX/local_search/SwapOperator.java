@@ -1,3 +1,7 @@
+package PCMAX.local_search;
+
+import PCMAX.Solution;
+
 import java.util.List;
 import java.util.Random;
 

@@ -1,9 +1,13 @@
+package PCMAX.local_search;
+
+import PCMAX.Solution;
+
 import java.util.*;
 
 public class TabuSearch implements LocalSearchAlgorithm {
 
     private int numberOfNeighbors;
-    private HeuristicSolver.ShortTermStrategies shortTermStrategy;
+    private LocalSearchAlgorithm.ShortTermStrategies shortTermStrategy;
     private int unsuccessfulNeighborGenerationAttempts;
     private int maxTabuListLength;
     private int tabuListClears;
@@ -13,7 +17,7 @@ public class TabuSearch implements LocalSearchAlgorithm {
     private SwapOperator swapOperator;
 
     public TabuSearch(
-        int numberOfNeighbors, HeuristicSolver.ShortTermStrategies shortTermStrategy,
+        int numberOfNeighbors, LocalSearchAlgorithm.ShortTermStrategies shortTermStrategy,
         int maxTabuListLength, int unsuccessfulNeighborGenerationAttempts, SwapOperator swapOperator
     ) {
         this.numberOfNeighbors = numberOfNeighbors;
@@ -99,7 +103,7 @@ public class TabuSearch implements LocalSearchAlgorithm {
             shiftsForSolution.put(neighbor, performedShifts);
 
             // FIRST-FIT
-            if (this.shortTermStrategy == HeuristicSolver.ShortTermStrategies.FIRST_FIT
+            if (this.shortTermStrategy == LocalSearchAlgorithm.ShortTermStrategies.FIRST_FIT
                 && !this.tabuListContainsAnyOfTheShifts(performedShifts)
                 && neighbor.getMakespan() < currSol.getMakespan()
             ) {
@@ -115,7 +119,7 @@ public class TabuSearch implements LocalSearchAlgorithm {
                 // ASPIRATION CRITERION
                 if (neighbor.getMakespan() < bestSol.getMakespan()) {
 //                    System.out.println("ASPIRATION!");
-                    if (this.shortTermStrategy == HeuristicSolver.ShortTermStrategies.FIRST_FIT) {
+                    if (this.shortTermStrategy == LocalSearchAlgorithm.ShortTermStrategies.FIRST_FIT) {
                         return neighbor;
                     } else {
                         nbrs.add(neighbor);

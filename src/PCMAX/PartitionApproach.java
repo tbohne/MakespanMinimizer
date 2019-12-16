@@ -1,3 +1,5 @@
+package PCMAX;
+
 import java.util.*;
 
 public class PartitionApproach {
@@ -71,7 +73,7 @@ public class PartitionApproach {
             }
         }
 
-//        for (PartialSolution ps : sol.getPartialSolutions()) {
+//        for (PCMAX.PartialSolution ps : sol.getPartialSolutions()) {
 //            System.out.println("###################################");
 //            System.out.println("---- PARTIAL SOLUTION: " + sol.getPartialSolutions().indexOf(ps));
 //            System.out.println(ps);

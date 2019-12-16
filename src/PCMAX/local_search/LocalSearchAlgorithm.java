@@ -1,9 +1,21 @@
+package PCMAX.local_search;
+
+import PCMAX.Solution;
+
 /**
  * Interface to be implemented by different local search algorithms.
  *
  * @author Tim Bohne
  */
 public interface LocalSearchAlgorithm {
+
+    /**
+     * Enumeration containing the different short term strategies for the tabu search.
+     */
+    public enum ShortTermStrategies {
+        FIRST_FIT,
+        BEST_FIT
+    }
 
     /**
      * Returns a neighboring solution based on the neighborhood structure used in the local search algorithm.

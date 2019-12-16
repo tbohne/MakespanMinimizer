@@ -1,3 +1,5 @@
+package PCMAX;
+
 import ilog.concert.*;
 import ilog.cplex.IloCplex;
 

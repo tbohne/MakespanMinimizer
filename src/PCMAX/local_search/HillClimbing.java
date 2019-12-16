@@ -1,15 +1,19 @@
+package PCMAX.local_search;
+
+import PCMAX.Solution;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class HillClimbing implements LocalSearchAlgorithm {
 
     private int numberOfNeighbors;
-    private HeuristicSolver.ShortTermStrategies shortTermStrategy;
+    private LocalSearchAlgorithm.ShortTermStrategies shortTermStrategy;
 
     // nbh operators
     private SwapOperator swapOperator;
 
-    public HillClimbing(int numberOfNeighbors, HeuristicSolver.ShortTermStrategies shortTermStrategy, SwapOperator swapOperator) {
+    public HillClimbing(int numberOfNeighbors, LocalSearchAlgorithm.ShortTermStrategies shortTermStrategy, SwapOperator swapOperator) {
         this.numberOfNeighbors = numberOfNeighbors;
         this.shortTermStrategy = shortTermStrategy;
         this.swapOperator = swapOperator;
@@ -48,7 +52,7 @@ public class HillClimbing implements LocalSearchAlgorithm {
             if (!neighbor.isFeasible()) { continue; }
 
             // FIRST-FIT
-            if (this.shortTermStrategy == HeuristicSolver.ShortTermStrategies.FIRST_FIT && neighbor.getMakespan() < currSol.getMakespan()) {
+            if (this.shortTermStrategy == LocalSearchAlgorithm.ShortTermStrategies.FIRST_FIT && neighbor.getMakespan() < currSol.getMakespan()) {
                 System.out.println("IMPROVEMENT!!!!!!!!!!!!!!!!!!!!!!!");
                 System.exit(0);
                 return neighbor;

@@ -1,3 +1,7 @@
+package PCMAX.local_search;
+
+import PCMAX.Solution;
+
 public class LocalSearch {
 
     private Solution currSol;
@@ -17,7 +21,7 @@ public class LocalSearch {
      * @param localSearchAlgorithm           - neighborhood structure to be used in the local search
      */
     public LocalSearch(
-        Solution initialSolution, double timeLimit, int numberOfNonImprovingIterations, LocalSearchAlgorithm localSearchAlgorithm
+            Solution initialSolution, double timeLimit, int numberOfNonImprovingIterations, LocalSearchAlgorithm localSearchAlgorithm
     ) {
         this.currSol = new Solution(initialSolution);
         this.bestSol = new Solution(initialSolution);

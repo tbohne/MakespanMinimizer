@@ -1,14 +1,8 @@
+package PCMAX;
+
 import java.util.*;
 
 public class HeuristicSolver {
-
-    /**
-     * Enumeration containing the different short term strategies for the tabu search.
-     */
-    public enum ShortTermStrategies {
-        FIRST_FIT,
-        BEST_FIT
-    }
 
     public static Solution solveWithLPT(Instance instance) {
         Queue<Machine> machines = new PriorityQueue<>();

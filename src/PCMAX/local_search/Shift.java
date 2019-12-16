@@ -1,3 +1,5 @@
+package PCMAX.local_search;
+
 public class Shift {
 
     private final int jobTime;

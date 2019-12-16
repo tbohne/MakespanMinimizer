@@ -1,3 +1,5 @@
+package PCMAX;
+
 import java.io.File;
 import java.util.Arrays;
 
@@ -46,7 +48,7 @@ public class Test {
 //                System.out.println("lpt: " + trivialSol.getMakespan());
 //                System.out.println("sps: " + sol.getMakespan());
 //                System.out.println("opt: " + mipSol.getMakespan());
-//                SolutionWriter.writeSolution(SOLUTION_PREFIX + solutionName + ".txt", sol);
+//                PCMAX.SolutionWriter.writeSolution(SOLUTION_PREFIX + solutionName + ".txt", sol);
 
                 SolutionWriter.writeSolutionAsCSV(SOLUTION_PREFIX + "solutions.csv", trivialSol, "LPT");
                 SolutionWriter.writeSolutionAsCSV(SOLUTION_PREFIX + "solutions.csv", sol, "SPS");
