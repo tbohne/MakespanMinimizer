@@ -8,7 +8,7 @@ import java.util.List;
 
 public class InstanceReader {
 
-    public static Instance readInstance(String filename) {
+    public static Instance readInstance(String filename, String prefix) {
 
         int numOfMachines = 0;
         int numOfJobs = 0;
@@ -27,6 +27,6 @@ public class InstanceReader {
             e.printStackTrace();
         }
 
-        return new Instance(numOfMachines, processingTimes, filename.replace("res/instances/", "").replace(".txt", ""));
+        return new Instance(numOfMachines, processingTimes, filename.replace(prefix, "").replace(".txt", ""));
     }
 }

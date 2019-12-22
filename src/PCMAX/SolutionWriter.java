@@ -23,7 +23,7 @@ public class SolutionWriter {
         }
     }
 
-    public static void writeSolutionAsCSV(String filename, Solution sol, String solver) {
+    public static void writeSolutionAsCSV(String filename, Solution sol, String solver, double timeLimit) {
         try {
             File file = new File(filename);
             boolean newFile = false;
@@ -35,10 +35,12 @@ public class SolutionWriter {
             BufferedWriter bw = new BufferedWriter(fw);
 
             if (newFile) {
-                bw.write("instance,solver,runtime,obj\n");
+                bw.write("instance,solver,time_limit,runtime,obj\n");
             }
             if (sol.isFeasible()) {
-                bw.write(sol.getNameOfSolvedInstance() + "," + solver + "," + sol.getTimeToSolve() + "," + sol.getMakespan() + "\n");
+                bw.write(
+                    sol.getNameOfSolvedInstance() + "," + solver + "," + timeLimit + "," + sol.getTimeToSolve() + "," + sol.getMakespan() + "\n"
+                );
             }
 
             bw.close();
