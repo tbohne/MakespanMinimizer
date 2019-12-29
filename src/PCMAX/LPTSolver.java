@@ -1,8 +1,4 @@
-package PCMAX;
-
-import PCMAX.Instance;
-import PCMAX.Machine;
-import PCMAX.Solution;
+package PCMAX;;
 
 import java.util.*;
 
@@ -16,7 +12,7 @@ public class LPTSolver {
         // longest processing times first
         Collections.reverse(jobs);
 
-        for (int i = 0; i < instance.getNumOfMachines(); i++) { machines.add(new Machine()); }
+        for (int i = 0; i < instance.getNumOfMachines(); i++) { machines.add(new Machine(i)); }
 
         for (int job :  jobs) {
             Machine m = machines.poll();

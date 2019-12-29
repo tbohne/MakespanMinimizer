@@ -65,7 +65,7 @@ public class MIPFormulation {
     private void generateSolutionFromVariableAssignments(Solution sol, IloIntVar[][] x, IloCplex cplex) throws ilog.concert.IloException {
         List<Machine> machines = new ArrayList<>();
         for (int i = 0; i < this.instance.getNumOfMachines(); i++) {
-            machines.add(new Machine());
+            machines.add(new Machine(i));
         }
         for (int i = 0; i < x.length; i++) {
             for (int q = 0; q < x[0].length; q++) {
