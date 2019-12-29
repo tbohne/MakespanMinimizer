@@ -13,12 +13,9 @@ public class TabuSearch implements LocalSearchAlgorithm {
     private int tabuListClears;
     private Queue<Shift> tabuList;
 
-    // nbh operators
-    private SwapOperator swapOperator;
-
     public TabuSearch(
         int numberOfNeighbors, LocalSearchAlgorithm.ShortTermStrategies shortTermStrategy,
-        int maxTabuListLength, int unsuccessfulNeighborGenerationAttempts, SwapOperator swapOperator
+        int maxTabuListLength, int unsuccessfulNeighborGenerationAttempts
     ) {
         this.numberOfNeighbors = numberOfNeighbors;
         this.shortTermStrategy = shortTermStrategy;
@@ -27,7 +24,6 @@ public class TabuSearch implements LocalSearchAlgorithm {
         this.tabuListClears = 0;
         this.unsuccessfulNeighborGenerationAttempts = unsuccessfulNeighborGenerationAttempts;
         this.tabuList = new LinkedList<>();
-        this.swapOperator = swapOperator;
     }
 
     /**
@@ -43,6 +39,10 @@ public class TabuSearch implements LocalSearchAlgorithm {
     }
 
     public boolean tabuListContainsAnyOfTheShifts(List<Shift> performedShifts) {
+
+//        System.out.println(performedShifts);
+//        System.out.println(this.tabuList);
+
         for (Shift shift : performedShifts) {
             if (this.tabuList.contains(shift)) {
                 return true;
@@ -88,13 +88,13 @@ public class TabuSearch implements LocalSearchAlgorithm {
         int failCnt = 0;
         Map<Solution, List<Shift>> shiftsForSolution = new HashMap<>();
 
-        System.out.println("TL: " + this.tabuList.size());
+//        System.out.println("TL: " + this.tabuList.size());
 
         while (nbrs.size() < this.numberOfNeighbors) {
 
             List<Shift> performedShifts = new ArrayList<>();
             performedShifts.clear();
-            Solution neighbor = this.swapOperator.generateSwapNeighbor(currSol, performedShifts);
+            Solution neighbor = SwapOperator.generateSwapNeighbor(currSol, performedShifts);
 
 //            System.out.println("TL: " + this.tabuList);
 //            System.out.println("shift: " + performedShifts);
