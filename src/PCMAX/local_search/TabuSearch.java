@@ -11,7 +11,7 @@ public class TabuSearch implements LocalSearchAlgorithm {
     private int unsuccessfulNeighborGenerationAttempts;
     private int maxTabuListLength;
     private int tabuListClears;
-    private Queue<Shift> tabuList;
+    private Queue<Swap> tabuList;
 
     public TabuSearch(
         int numberOfNeighbors, LocalSearchAlgorithm.ShortTermStrategies shortTermStrategy,
@@ -38,13 +38,9 @@ public class TabuSearch implements LocalSearchAlgorithm {
         return this.tabuListClears;
     }
 
-    public boolean tabuListContainsAnyOfTheShifts(List<Shift> performedShifts) {
-
-//        System.out.println(performedShifts);
-//        System.out.println(this.tabuList);
-
-        for (Shift shift : performedShifts) {
-            if (this.tabuList.contains(shift)) {
+    public boolean tabuListContainsAnyOfTheSwaps(List<Swap> performedSwaps) {
+        for (Swap swap : performedSwaps) {
+            if (this.tabuList.contains(swap)) {
                 return true;
             }
         }
@@ -52,18 +48,17 @@ public class TabuSearch implements LocalSearchAlgorithm {
     }
 
     /**
-     * Adds the specified shift operation to the tabu list.
+     * Adds the specified swap operation to the tabu list.
      * Replaces the oldest entry if the maximum length of the tabu list is reached.
-     *
      */
-    public void forbidShifts(List<Shift> performedShifts) {
+    public void forbidSwaps(List<Swap> performedSwaps) {
         if (this.tabuList.size() >= this.maxTabuListLength) {
-            while (this.tabuList.size() + performedShifts.size() >= this.maxTabuListLength) {
+            while (this.tabuList.size() + performedSwaps.size() >= this.maxTabuListLength) {
                 this.tabuList.poll();
             }
         }
-        for (Shift shift : performedShifts) {
-            this.tabuList.add(shift);
+        for (Swap swap : performedSwaps) {
+            this.tabuList.add(swap);
         }
     }
 
@@ -86,32 +81,32 @@ public class TabuSearch implements LocalSearchAlgorithm {
     public Solution getNeighbor(Solution currSol, Solution bestSol) {
         List<Solution> nbrs = new ArrayList<>();
         int failCnt = 0;
-        Map<Solution, List<Shift>> shiftsForSolution = new HashMap<>();
+        Map<Solution, List<Swap>> swapsForSolution = new HashMap<>();
 
 //        System.out.println("TL: " + this.tabuList.size());
 
         while (nbrs.size() < this.numberOfNeighbors) {
 
-            List<Shift> performedShifts = new ArrayList<>();
-            performedShifts.clear();
-            Solution neighbor = SwapOperator.generateSwapNeighbor(currSol, performedShifts);
+            List<Swap> performedSwaps = new ArrayList<>();
+            performedSwaps.clear();
+            Solution neighbor = SwapOperator.generateSwapNeighbor(currSol, performedSwaps);
 
 //            System.out.println("TL: " + this.tabuList);
 //            System.out.println("shift: " + performedShifts);
 
             if (!neighbor.isFeasible()) { continue; }
-            shiftsForSolution.put(neighbor, performedShifts);
+            swapsForSolution.put(neighbor, performedSwaps);
 
             // FIRST-FIT
             if (this.shortTermStrategy == LocalSearchAlgorithm.ShortTermStrategies.FIRST_FIT
-                && !this.tabuListContainsAnyOfTheShifts(performedShifts)
+                && !this.tabuListContainsAnyOfTheSwaps(performedSwaps)
                 && neighbor.getMakespan() < currSol.getMakespan()
             ) {
-                this.forbidShifts(performedShifts);
+                this.forbidSwaps(performedSwaps);
 //                System.out.println("FIRST-FIT RETURN");
                 return neighbor;
             // BEST-FIT
-            } else if (!this.tabuListContainsAnyOfTheShifts(performedShifts)) {
+            } else if (!this.tabuListContainsAnyOfTheSwaps(performedSwaps)) {
                 nbrs.add(neighbor);
             } else {
 //                System.out.println("TABU");
@@ -142,7 +137,7 @@ public class TabuSearch implements LocalSearchAlgorithm {
         }
 //        System.out.println("BEST-FIT RETURN");
         Solution best = this.getBestSolution(nbrs);
-        this.forbidShifts(shiftsForSolution.get(best));
+        this.forbidSwaps(swapsForSolution.get(best));
         return best;
     }
 }
