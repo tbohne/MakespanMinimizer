@@ -1,7 +1,5 @@
 package PCMAX;
 
-import PCMAX.local_search.LPTSolver;
-
 import java.util.*;
 
 public class PartitionHeuristic {

@@ -10,17 +10,14 @@ public class HillClimbing implements LocalSearchAlgorithm {
     private int numberOfNeighbors;
     private LocalSearchAlgorithm.ShortTermStrategies shortTermStrategy;
 
-    // nbh operators
-    private SwapOperator swapOperator;
-
-    public HillClimbing(int numberOfNeighbors, LocalSearchAlgorithm.ShortTermStrategies shortTermStrategy, SwapOperator swapOperator) {
+    public HillClimbing(int numberOfNeighbors, LocalSearchAlgorithm.ShortTermStrategies shortTermStrategy) {
         this.numberOfNeighbors = numberOfNeighbors;
         this.shortTermStrategy = shortTermStrategy;
-        this.swapOperator = swapOperator;
     }
 
     private Solution applyVariableNeighborhood(Solution currSol) {
-        return this.swapOperator.generateSwapNeighbor(currSol, new ArrayList<>());
+//        return this.api.generateSwapNeighbor(currSol, new ArrayList<>());
+        return SwapOperator.generateSwapNeighbor(currSol, new ArrayList<>());
     }
 
     /**
@@ -46,15 +43,10 @@ public class HillClimbing implements LocalSearchAlgorithm {
         while (nbrs.size() < this.numberOfNeighbors) {
 
             Solution neighbor = this.applyVariableNeighborhood(currSol);
-            System.out.println("###################################");
-            System.out.println(neighbor);
-            System.out.println("###################################");
-            if (!neighbor.isFeasible()) { continue; }
 
+            if (!neighbor.isFeasible()) { continue; }
             // FIRST-FIT
             if (this.shortTermStrategy == LocalSearchAlgorithm.ShortTermStrategies.FIRST_FIT && neighbor.getMakespan() < currSol.getMakespan()) {
-                System.out.println("IMPROVEMENT!!!!!!!!!!!!!!!!!!!!!!!");
-                System.exit(0);
                 return neighbor;
             // BEST-FIT
             } else {

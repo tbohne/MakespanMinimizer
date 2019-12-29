@@ -1,4 +1,4 @@
-package PCMAX.local_search;
+package PCMAX;
 
 import PCMAX.Instance;
 import PCMAX.Machine;
