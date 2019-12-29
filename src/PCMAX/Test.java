@@ -1,6 +1,6 @@
 package PCMAX;
 
-import PCMAX.local_search.LPTSolver;
+import PCMAX.local_search.*;
 
 import java.io.File;
 import java.util.Arrays;
@@ -18,9 +18,9 @@ public class Test {
     private static final double MIP_TOLERANCE = 0.0;
     /**********************************************************/
 
-    private static final String CURRENT_INSTANCE_SET = "S77";
+    private static final String CURRENT_INSTANCE_SET = "S60";
 
-    private static final double TIME_LIMIT = 5;
+    private static final double TIME_LIMIT = 60;
 
     public static void main(String[] args) {
 
@@ -47,18 +47,31 @@ public class Test {
             trivialSol.setTimeToSolve((System.currentTimeMillis() - startTime) / 1000.0);
 
             startTime = System.currentTimeMillis();
-
             PartitionHeuristic heu = new PartitionHeuristic(instance, TIME_LIMIT);
             System.out.println("solving with SPS");
             Solution sol = heu.solve();
             sol.setTimeToSolve((System.currentTimeMillis() - startTime) / 1000.0);
 
-            if (sol.isFeasible() && mipSol.isFeasible() && trivialSol.isFeasible()) {
+            Solution currSol = new Solution(trivialSol);
+            Solution bestSol = new Solution(trivialSol);
+
+            int numOfMachineCombinations = instance.getNumOfMachines() * (instance.getNumOfMachines() - 1) / 2;
+
+            TabuSearch hc = new TabuSearch(
+                1, LocalSearchAlgorithm.ShortTermStrategies.BEST_FIT, numOfMachineCombinations, 100
+            );
+            LocalSearch l = new LocalSearch(trivialSol, 0.0, numOfMachineCombinations, hc);
+            startTime = System.currentTimeMillis();
+            Solution localSearchSol = l.solve();
+            localSearchSol.setTimeToSolve((System.currentTimeMillis() - startTime) / 1000.0);
+
+            if (sol.isFeasible() && mipSol.isFeasible() && trivialSol.isFeasible() && localSearchSol.isFeasible()) {
 //                PCMAX.SolutionWriter.writeSolution(SOLUTION_PREFIX + solutionName + ".txt", sol);
 
                 SolutionWriter.writeSolutionAsCSV(SOLUTION_PREFIX + CURRENT_INSTANCE_SET + "_solutions.csv", trivialSol, "LPT", TIME_LIMIT);
                 SolutionWriter.writeSolutionAsCSV(SOLUTION_PREFIX + CURRENT_INSTANCE_SET + "_solutions.csv", sol, "SPS", TIME_LIMIT);
                 SolutionWriter.writeSolutionAsCSV(SOLUTION_PREFIX + CURRENT_INSTANCE_SET + "_solutions.csv", mipSol, "CPLEX", TIME_LIMIT);
+                SolutionWriter.writeSolutionAsCSV(SOLUTION_PREFIX + CURRENT_INSTANCE_SET + "_solutions.csv", localSearchSol, "TS", TIME_LIMIT);
             } else {
                 System.out.println("generated infeasible solution..");
                 System.out.println(sol);
