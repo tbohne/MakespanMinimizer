@@ -1,9 +1,9 @@
 library(ggplot2)
 library(plyr)
 
-input <- read.csv(file = "res/solutions/S77_solutions.csv", header = TRUE, sep = ",")
+input <- read.csv(file = "../../res/solutions/S60_solutions.csv", header = TRUE, sep = ",")
 
-solverEntries <- subset(input, solver == "LPT" | solver == "SPS" | solver == "CPLEX")
+solverEntries <- subset(input, solver == "LPT" | solver == "SPS" | solver == "CPLEX" | solver == "TS")
 plotPointsPre <- ggplot(data = solverEntries, aes(x = as.numeric(as.character(runtime)), y = instance, color = solver, group = solver))
 finalPlot <- plotPointsPre + geom_point() + xlab("runtime (s)") + ylab("instance")
 
@@ -20,3 +20,7 @@ paste("avg runtime of SPS: ", round(mean(as.numeric(as.character(SPSRuntime[["ru
 CPLEXData <- subset(input, solver == "CPLEX")
 CPLEXRuntime <- subset(CPLEXData, select = c(runtime))
 paste("avg runtime of CPLEX: ", round(mean(as.numeric(as.character(CPLEXRuntime[["runtime"]]))), digits = 2))
+
+TSData <- subset(input, solver == "TS")
+TSRuntime <- subset(TSData, select = c(runtime))
+paste("avg runtime of TS: ", round(mean(as.numeric(as.character(TSRuntime[["runtime"]]))), digits = 2))
