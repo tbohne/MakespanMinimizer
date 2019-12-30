@@ -9,6 +9,8 @@ public class Test {
 
     private static final String INSTANCE_PREFIX = "res/instances/";
     private static final String SOLUTION_PREFIX = "res/solutions/";
+    private static final String CURRENT_INSTANCE_SET = "S50";
+    private static final double TIME_LIMIT = 60;
 
     /********************** CPLEX CONFIG **********************/
     private static final boolean HIDE_CPLEX_OUTPUT = true;
@@ -18,9 +20,48 @@ public class Test {
     private static final double MIP_TOLERANCE = 0.0;
     /**********************************************************/
 
-    private static final String CURRENT_INSTANCE_SET = "S60";
+    /*********************** TS CONFIG ************************/
+    private static final int NUMBER_OF_NEIGHBORS = 10;
+    private static final LocalSearchAlgorithm.ShortTermStrategies SHORT_TERM_STRATEGIE = LocalSearchAlgorithm.ShortTermStrategies.BEST_FIT;
+    private static final int UNSUCCESSFUL_NEIGHBOR_GENERATION_ATTEMPTS = 100;
+    private static final int NUMBER_OF_NON_IMPROVING_ITERATIONS = 100;
+    /**********************************************************/
 
-    private static final double TIME_LIMIT = 60;
+    public static Solution solveWithCPLEX(Instance instance) {
+        System.out.println("solving with CPLEX..");
+        MIPFormulation mip = new MIPFormulation(instance, TIME_LIMIT, HIDE_CPLEX_OUTPUT, MIP_EMPHASIS, MIP_TOLERANCE);
+        return mip.solve();
+    }
+
+    public static Solution solveWithLPT(Instance instance) {
+        double startTime = System.currentTimeMillis();
+        System.out.println("solving with LPT..");
+        Solution trivialSol = LPTSolver.solve(instance);
+        trivialSol.setTimeToSolve((System.currentTimeMillis() - startTime) / 1000.0);
+        return trivialSol;
+    }
+
+    public static Solution solveWithSPS(Instance instance) {
+        double startTime = System.currentTimeMillis();
+        PartitionHeuristic sps = new PartitionHeuristic(instance, TIME_LIMIT);
+        System.out.println("solving with SPS..");
+        Solution solSPS = sps.solve();
+        solSPS.setTimeToSolve((System.currentTimeMillis() - startTime) / 1000.0);
+        return solSPS;
+    }
+
+    public static Solution solveWithTabuSearch(Instance instance, Solution trivialSol) {
+        int numOfMachineCombinations = instance.getNumOfMachines() * (instance.getNumOfMachines() - 1) / 2;
+        TabuSearch ts = new TabuSearch(
+            NUMBER_OF_NEIGHBORS, SHORT_TERM_STRATEGIE, numOfMachineCombinations, UNSUCCESSFUL_NEIGHBOR_GENERATION_ATTEMPTS
+        );
+        LocalSearch l = new LocalSearch(trivialSol, 0.0, NUMBER_OF_NON_IMPROVING_ITERATIONS, ts);
+        double startTime = System.currentTimeMillis();
+        System.out.println("solving with TS..");
+        Solution localSearchSol = l.solve();
+        localSearchSol.setTimeToSolve((System.currentTimeMillis() - startTime) / 1000.0);
+        return localSearchSol;
+    }
 
     public static void main(String[] args) {
 
@@ -36,45 +77,19 @@ public class Test {
             Instance instance = InstanceReader.readInstance(INSTANCE_PREFIX + CURRENT_INSTANCE_SET + "/" + instanceName + ".txt", INSTANCE_PREFIX + CURRENT_INSTANCE_SET + "/");
             String solutionName = instanceName.replace("instance", "sol");
 
-            MIPFormulation mip = new MIPFormulation(instance, TIME_LIMIT, HIDE_CPLEX_OUTPUT, MIP_EMPHASIS, MIP_TOLERANCE);
+            Solution trivialSol = solveWithLPT(instance);
+            Solution solSPS = solveWithSPS(instance);
+            Solution mipSol = solveWithCPLEX(instance);
+            Solution tabuSearchSolution = solveWithTabuSearch(instance, trivialSol);
 
-            System.out.println("solving with CPLEX..");
-            Solution mipSol = mip.solve();
-
-            double startTime = System.currentTimeMillis();
-            System.out.println("solving with LPT..");
-            Solution trivialSol = LPTSolver.solve(instance);
-            trivialSol.setTimeToSolve((System.currentTimeMillis() - startTime) / 1000.0);
-
-            startTime = System.currentTimeMillis();
-            PartitionHeuristic heu = new PartitionHeuristic(instance, TIME_LIMIT);
-            System.out.println("solving with SPS");
-            Solution sol = heu.solve();
-            sol.setTimeToSolve((System.currentTimeMillis() - startTime) / 1000.0);
-
-            Solution currSol = new Solution(trivialSol);
-            Solution bestSol = new Solution(trivialSol);
-
-            int numOfMachineCombinations = instance.getNumOfMachines() * (instance.getNumOfMachines() - 1) / 2;
-
-            TabuSearch hc = new TabuSearch(
-                1, LocalSearchAlgorithm.ShortTermStrategies.BEST_FIT, numOfMachineCombinations, 100
-            );
-            LocalSearch l = new LocalSearch(trivialSol, 0.0, numOfMachineCombinations, hc);
-            startTime = System.currentTimeMillis();
-            Solution localSearchSol = l.solve();
-            localSearchSol.setTimeToSolve((System.currentTimeMillis() - startTime) / 1000.0);
-
-            if (sol.isFeasible() && mipSol.isFeasible() && trivialSol.isFeasible() && localSearchSol.isFeasible()) {
+            if (trivialSol.isFeasible() && solSPS.isFeasible() && mipSol.isFeasible() && tabuSearchSolution.isFeasible()) {
 //                PCMAX.SolutionWriter.writeSolution(SOLUTION_PREFIX + solutionName + ".txt", sol);
-
                 SolutionWriter.writeSolutionAsCSV(SOLUTION_PREFIX + CURRENT_INSTANCE_SET + "_solutions.csv", trivialSol, "LPT", TIME_LIMIT);
-                SolutionWriter.writeSolutionAsCSV(SOLUTION_PREFIX + CURRENT_INSTANCE_SET + "_solutions.csv", sol, "SPS", TIME_LIMIT);
+                SolutionWriter.writeSolutionAsCSV(SOLUTION_PREFIX + CURRENT_INSTANCE_SET + "_solutions.csv", solSPS, "SPS", TIME_LIMIT);
                 SolutionWriter.writeSolutionAsCSV(SOLUTION_PREFIX + CURRENT_INSTANCE_SET + "_solutions.csv", mipSol, "CPLEX", TIME_LIMIT);
-                SolutionWriter.writeSolutionAsCSV(SOLUTION_PREFIX + CURRENT_INSTANCE_SET + "_solutions.csv", localSearchSol, "TS", TIME_LIMIT);
+                SolutionWriter.writeSolutionAsCSV(SOLUTION_PREFIX + CURRENT_INSTANCE_SET + "_solutions.csv", tabuSearchSolution, "TS", TIME_LIMIT);
             } else {
                 System.out.println("generated infeasible solution..");
-                System.out.println(sol);
                 System.exit(0);
             }
         }
