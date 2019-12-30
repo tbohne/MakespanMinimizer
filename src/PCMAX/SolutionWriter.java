@@ -33,16 +33,15 @@ public class SolutionWriter {
             }
             FileWriter fw = new FileWriter(file, true);
             BufferedWriter bw = new BufferedWriter(fw);
-
             if (newFile) {
                 bw.write("instance,solver,time_limit,runtime,obj\n");
             }
             if (sol.isFeasible()) {
                 bw.write(
-                    sol.getNameOfSolvedInstance() + "," + solver + "," + timeLimit + "," + sol.getTimeToSolve() + "," + sol.getMakespan() + "\n"
+                    sol.getNameOfSolvedInstance() + "," + solver + "," + timeLimit + ","
+                        + sol.getTimeToSolve() + "," + sol.getMakespan() + "\n"
                 );
             }
-
             bw.close();
             fw.close();
         } catch (IOException e) {

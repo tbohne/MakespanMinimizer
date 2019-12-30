@@ -4,13 +4,11 @@ import PCMAX.Solution;
 
 /**
  * Interface to be implemented by different local search algorithms.
- *
- * @author Tim Bohne
  */
 public interface LocalSearchAlgorithm {
 
     /**
-     * Enumeration containing the different short term strategies for the tabu search.
+     * Enumeration containing the different short term strategies for the local search.
      */
     public enum ShortTermStrategies {
         FIRST_FIT,

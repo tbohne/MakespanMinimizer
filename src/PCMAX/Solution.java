@@ -53,13 +53,11 @@ public class Solution {
 
         // check whether each job (represented by processing time) is assigned to a machine and not more
         for (Machine m : this.getMachineAllocations()) {
-
             for (int processingTime : m.getJobs()) {
                 if (!processingTimesCopy.contains(processingTime)) { return false; }
                 processingTimesCopy.remove(processingTimesCopy.indexOf(processingTime));
             }
         }
-
         return processingTimesCopy.size() == 0;
     }
 

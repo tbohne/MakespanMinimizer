@@ -21,7 +21,7 @@ public class LocalSearch {
      * @param localSearchAlgorithm           - neighborhood structure to be used in the local search
      */
     public LocalSearch(
-            Solution initialSolution, double timeLimit, int numberOfNonImprovingIterations, LocalSearchAlgorithm localSearchAlgorithm
+        Solution initialSolution, double timeLimit, int numberOfNonImprovingIterations, LocalSearchAlgorithm localSearchAlgorithm
     ) {
         this.currSol = new Solution(initialSolution);
         this.bestSol = new Solution(initialSolution);
@@ -66,10 +66,9 @@ public class LocalSearch {
     private void updateCurrentSolution(int iteration, LocalSearchAlgorithm localSearchAlgorithm) {
         this.currSol = this.getNeighbor(localSearchAlgorithm);
         if (this.currSol.getMakespan() < this.bestSol.getMakespan()) {
-            System.out.println("IMPROVEMENT!!!");
+            System.out.println("IMPROVEMENT !!");
             System.out.println(this.currSol.getMakespan());
             System.out.println("feasible: " + this.currSol.isFeasible());
-//            System.exit(0);
             this.bestSol = this.currSol;
             this.iterationOfLastImprovement = iteration;
         }

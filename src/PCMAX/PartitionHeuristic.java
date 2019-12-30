@@ -84,7 +84,6 @@ public class PartitionHeuristic {
 
             // select two ordered partial solutions with biggest gaps
             Collections.sort(sol.getPartialSolutions());
-            // TODO: check whether we need to reverse here
             Collections.reverse(sol.getPartialSolutions());
 
             // the two partial solutions with highest gaps

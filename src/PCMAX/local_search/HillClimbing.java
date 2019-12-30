@@ -16,16 +16,9 @@ public class HillClimbing implements LocalSearchAlgorithm {
     }
 
     private Solution applyVariableNeighborhood(Solution currSol) {
-//        return this.api.generateSwapNeighbor(currSol, new ArrayList<>());
         return SwapOperator.generateSwapNeighbor(currSol, new ArrayList<>());
     }
 
-    /**
-     * Returns the best solution from the list of generated solutions based on the transport costs.
-     *
-     * @param solutions - list of generated solutions
-     * @return best solution based on the costs
-     */
     public Solution getBestSolution(List<Solution> solutions) {
         Solution bestSol = solutions.get(0);
         for (Solution sol : solutions) {
