@@ -1,7 +1,6 @@
 package PCMAX;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class Solution {
 
@@ -73,6 +72,52 @@ public class Solution {
 
     public String getNameOfSolvedInstance() {
         return this.instance.getName();
+    }
+
+    @Override
+    public int hashCode() {
+        return this.getMakespan() * this.getMachineAllocations().size();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == null) return false;
+
+        if (!(other instanceof Solution)) {
+            return false;
+        }
+        if (other == this) {
+            return true;
+        }
+
+        boolean equalMakespan = getMakespan() == ((Solution)other).getMakespan();
+        boolean equalSizeOfMachines = this.getMachineAllocations().size() == ((Solution)other).getMachineAllocations().size();
+
+        if (!equalMakespan || !equalSizeOfMachines) {
+            return false;
+        }
+
+        // actually it suffices here to call solution equal when they have the same makespan
+
+//        for (int i = 0; i < this.getMachineAllocations().size(); i++) {
+//            if (!this.getMachineAllocations().get(i).equals(((Solution)other).getMachineAllocations().get(i))) {
+////            Set<Machine> r1 = new HashSet<Machine>(this.getMachineAllocations().get(i));
+////            Set<Machine> r2 = new HashSet<>((Solution)other).getMachineAllocations().get(i);
+////            return r1.equals(r2);
+//
+//                Collections.sort(this.getMachineAllocations().get(i).getJobs());
+//                Collections.sort(((Solution)other).getMachineAllocations().get(i).getJobs());
+////
+//                System.out.println(this.getMachineAllocations().get(i));
+//                System.out.println(((Solution)other).getMachineAllocations().get(i));
+////                System.exit(0);
+//
+////                System.out.println("false");
+//                return false;
+//            }
+//        }
+
+        return true;
     }
 
     @Override

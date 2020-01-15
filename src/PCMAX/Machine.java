@@ -56,7 +56,20 @@ public class Machine implements Comparable<Machine> {
         if (other == this) {
             return true;
         }
-        return this.getId() == ((Machine) other).getId();
+
+        boolean equalID = this.getId() == ((Machine) other).getId();
+        boolean equalNumOfJobs = this.getJobs().size() == ((Machine) other).getJobs().size();
+        if (!equalID || !equalNumOfJobs) { return false; }
+
+        for (int i = 0; i < this.getJobs().size(); i++) {
+            if (!this.getJobs().get(i).equals(((Machine) other).getJobs().get(i))) {
+//                System.out.println(this.getJobs().get(i));
+//                System.out.println(((Machine) other).getJobs().get(i));
+                return false;
+            }
+        }
+
+        return true;
     }
 
     @Override
