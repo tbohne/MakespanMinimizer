@@ -26,6 +26,12 @@ public class SwapOperator {
         return best;
     }
 
+    private static Solution returnRandomSol(List<Solution> solutions, Map<Solution, Swap> swapBySolution, List<Swap> performedSwaps) {
+        Solution random = solutions.get(getRandomNumberInRange(0, solutions.size() - 1));
+        performedSwaps.add(swapBySolution.get(random));
+        return random;
+    }
+
     private static Solution performSwap(Solution currSol, int idxMachineOne, int idxMachineTwo, List<Swap> performedSwaps) {
 
         List<Solution> tmpSolutions = new ArrayList<>();
@@ -50,17 +56,22 @@ public class SwapOperator {
                 tmpSol.getMachineAllocations().set(idxMachineTwo, machineTwo);
 
 //                // FIRST-FIT
-//                if (tmpSol.getMakespan() < currSol.getMakespan()) {
-//                    System.out.println("first-fit swap: " + tmpSol.getMakespan());
-//                    return tmpSol;
-//                }
+                if (tmpSol.getMakespan() < currSol.getMakespan()) {
+                    System.out.println("first-fit swap: " + tmpSol.getMakespan());
+                    return tmpSol;
+                }
 
-                Swap swap = new Swap(machineOne, machineTwo);
+                Swap swap = new Swap(machineOne, machineTwo, jOne, jTwo);
 
                 Solution sol = new Solution(tmpSol);
                 tmpSolutions.add(sol);
                 swapsBySolution.put(sol, swap);
             }
+        }
+
+        // with a certain probability, a random solution is selected (not the best) --> variability
+        if (Math.random() > 0.85) {
+            return returnRandomSol(tmpSolutions, swapsBySolution, performedSwaps);
         }
         return returnBestSol(tmpSolutions, swapsBySolution, performedSwaps);
     }

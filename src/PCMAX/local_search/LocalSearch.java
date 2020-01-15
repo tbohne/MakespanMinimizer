@@ -82,8 +82,9 @@ public class LocalSearch {
     private void solveIterationsSinceLastImprovement(LocalSearchAlgorithm localSearchAlgorithm) {
         int iteration = 0;
         while (Math.abs(this.iterationOfLastImprovement - iteration) < this.numberOfNonImprovingIterations) {
-//            System.out.println(this.bestSol.getMakespan());
-//            System.out.println("non improving iterations: " + Math.abs(this.iterationOfLastImprovement - iteration));
+            System.out.println("non improving iterations: " + Math.abs(this.iterationOfLastImprovement - iteration));
+//            System.out.println("runtime: " + (System.currentTimeMillis() - this.startTime) / 1000);
+//            System.out.println("timelimit: " + this.timeLimit);
             if (this.timeLimit != 0 && (System.currentTimeMillis() - this.startTime) / 1000 > this.timeLimit) { break; }
             this.updateCurrentSolution(iteration++, localSearchAlgorithm);
         }
