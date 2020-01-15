@@ -83,8 +83,8 @@ public class TabuSearch implements LocalSearchAlgorithm {
         int failCnt = 0;
         Map<Solution, List<Swap>> swapsForSolution = new HashMap<>();
 
-        System.out.println("TL: " + this.tabuList.size());
-        System.out.println(this.tabuList);
+//        System.out.println("TL: " + this.tabuList.size());
+//        System.out.println(this.tabuList);
 
         while (nbrs.size() < this.numberOfNeighbors) {
 
@@ -104,17 +104,17 @@ public class TabuSearch implements LocalSearchAlgorithm {
                 && neighbor.getMakespan() < currSol.getMakespan()
             ) {
                 this.forbidSwaps(performedSwaps);
-                System.out.println("FIRST-FIT RETURN");
+//                System.out.println("FIRST-FIT RETURN");
                 return neighbor;
             // BEST-FIT
             } else if (!this.tabuListContainsAnyOfTheSwaps(performedSwaps)) {
                 nbrs.add(neighbor);
             } else {
-                System.out.println("TABU");
+//                System.out.println("TABU");
                 // TABU
                 // ASPIRATION CRITERION
                 if (neighbor.getMakespan() < bestSol.getMakespan()) {
-                    System.out.println("ASPIRATION!");
+//                    System.out.println("ASPIRATION!");
                     if (this.shortTermStrategy == LocalSearchAlgorithm.ShortTermStrategies.FIRST_FIT) {
                         return neighbor;
                     } else {
@@ -126,17 +126,17 @@ public class TabuSearch implements LocalSearchAlgorithm {
                         failCnt = 0;
 
                         if (nbrs.size() == 0) {
-                            System.out.println("CLEARING TL");
+//                            System.out.println("CLEARING TL");
                             this.clearTabuList();
                         } else {
-                            System.out.println("FAIL RETURN");
+//                            System.out.println("FAIL RETURN");
                             return this.getBestSolution(nbrs);
                         }
                     }
                 }
             }
         }
-        System.out.println("BEST-FIT RETURN");
+//        System.out.println("BEST-FIT RETURN");
         Solution best = this.getBestSolution(nbrs);
         this.forbidSwaps(swapsForSolution.get(best));
         return best;

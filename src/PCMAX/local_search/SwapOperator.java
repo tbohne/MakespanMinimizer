@@ -32,10 +32,9 @@ public class SwapOperator {
         return random;
     }
 
-    private static Solution performSwap(Solution currSol, int idxMachineOne, int idxMachineTwo, List<Swap> performedSwaps) {
+    private static List<Solution> singleThreaded(Solution currSol, int idxMachineOne, int idxMachineTwo, Map<Solution, Swap> swapsBySolution) {
 
         List<Solution> tmpSolutions = new ArrayList<>();
-        Map<Solution, Swap> swapsBySolution = new HashMap<>();
 
         // exchange each pair of jobs
         for (int jobOne = 0; jobOne < currSol.getMachineAllocations().get(idxMachineOne).getJobs().size(); jobOne++) {
@@ -55,11 +54,11 @@ public class SwapOperator {
                 tmpSol.getMachineAllocations().set(idxMachineOne, machineOne);
                 tmpSol.getMachineAllocations().set(idxMachineTwo, machineTwo);
 
-//                // FIRST-FIT
-                if (tmpSol.getMakespan() < currSol.getMakespan()) {
-                    System.out.println("first-fit swap: " + tmpSol.getMakespan());
-                    return tmpSol;
-                }
+////                // FIRST-FIT
+//                if (tmpSol.getMakespan() < currSol.getMakespan()) {
+//                    System.out.println("first-fit swap: " + tmpSol.getMakespan());
+//                    return tmpSol;
+//                }
 
                 Swap swap = new Swap(machineOne, machineTwo, jOne, jTwo);
 
@@ -68,6 +67,62 @@ public class SwapOperator {
                 swapsBySolution.put(sol, swap);
             }
         }
+
+        return tmpSolutions;
+    }
+
+    private static boolean equalRes(List<Solution> res1, List<Solution> res2) {
+        if (res1.size() != res2.size()) { return false; }
+        Set<Solution> r1 = new HashSet<>(res1);
+        Set<Solution> r2 = new HashSet<>(res2);
+        return r1.equals(r2);
+    }
+
+    private static Solution performSwap(Solution currSol, int idxMachineOne, int idxMachineTwo, List<Swap> performedSwaps) {
+
+        Map<Solution, Swap> swapsBySolution = new HashMap<>();
+        swapsBySolution = Collections.synchronizedMap(swapsBySolution);
+
+        double startTime = System.currentTimeMillis();
+        List<Solution> tmpSolutions = singleThreaded(currSol, idxMachineOne, idxMachineTwo, swapsBySolution);
+        System.out.println("runtime single threaded: " + (System.currentTimeMillis() - startTime)/ 1000);
+
+        List<Solution> res = new ArrayList<>();
+        res = Collections.synchronizedList(res);
+
+        int outerRange = currSol.getMachineAllocations().get(idxMachineOne).getJobs().size();
+        int innerRange = currSol.getMachineAllocations().get(idxMachineTwo).getJobs().size();
+
+        Thread i1 = new Thread(new SwapThread(
+            "i1", 0, innerRange, 0, outerRange / 4, res, currSol, idxMachineOne, idxMachineTwo, swapsBySolution
+        ));
+        Thread i2 = new Thread(new SwapThread(
+            "i2", 0, innerRange, outerRange / 4, outerRange / 2, res, currSol, idxMachineOne, idxMachineTwo, swapsBySolution
+        ));
+        Thread i3 = new Thread(new SwapThread(
+                "i3", 0, innerRange, outerRange / 2, outerRange - outerRange / 4, res, currSol, idxMachineOne, idxMachineTwo, swapsBySolution
+        ));
+        Thread i4 = new Thread(new SwapThread(
+                "i4", 0, innerRange, outerRange - outerRange / 4, outerRange, res, currSol, idxMachineOne, idxMachineTwo, swapsBySolution
+        ));
+
+        startTime = System.currentTimeMillis();
+        i1.start();
+        i2.start();
+        i3.start();
+        i4.start();
+
+        try {
+            i1.join();
+            i2.join();
+            i3.join();
+            i4.join();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("runtime multi threaded: " + (System.currentTimeMillis() - startTime)/ 1000);
+        System.out.println("equal res: " + equalRes(tmpSolutions, res));
 
         // with a certain probability, a random solution is selected (not the best) --> variability
         if (Math.random() > 0.85) {
