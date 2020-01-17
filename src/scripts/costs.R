@@ -1,6 +1,6 @@
 library(ggplot2)
 
-input <- read.csv(file = "../../res/solutions/S70_solutions.csv", header = TRUE, sep = ",")
+input <- read.csv(file = "../../res/solutions/S_TEST_solutions.csv", header = TRUE, sep = ",")
 
 solverEntries <- subset(input, solver == "LPT" | solver == "SPS" | solver == "CPLEX" | solver == "TS")
 plotPointsPre <- ggplot(data = solverEntries, aes(x = obj, y = instance, color = solver, group = solver))

@@ -9,8 +9,8 @@ public class Test {
 
     private static final String INSTANCE_PREFIX = "res/instances/";
     private static final String SOLUTION_PREFIX = "res/solutions/";
-    private static final String CURRENT_INSTANCE_SET = "S50";
-    private static final double TIME_LIMIT = 60;
+    private static final String CURRENT_INSTANCE_SET = "S_TEST";
+    private static final double TIME_LIMIT = 10;
 
     /********************** CPLEX CONFIG **********************/
     private static final boolean HIDE_CPLEX_OUTPUT = true;
@@ -21,10 +21,10 @@ public class Test {
     /**********************************************************/
 
     /*********************** TS CONFIG ************************/
-    private static final int NUMBER_OF_NEIGHBORS = 10;
+    private static final int NUMBER_OF_NEIGHBORS = 5;
     private static final LocalSearchAlgorithm.ShortTermStrategies SHORT_TERM_STRATEGIE = LocalSearchAlgorithm.ShortTermStrategies.BEST_FIT;
-    private static final int UNSUCCESSFUL_NEIGHBOR_GENERATION_ATTEMPTS = 100;
-    private static final int NUMBER_OF_NON_IMPROVING_ITERATIONS = 100;
+    private static final int UNSUCCESSFUL_NEIGHBOR_GENERATION_ATTEMPTS = 10;
+    private static final int NUMBER_OF_NON_IMPROVING_ITERATIONS = 900;
     /**********************************************************/
 
     public static Solution solveWithCPLEX(Instance instance) {
@@ -43,7 +43,7 @@ public class Test {
 
     public static Solution solveWithSPS(Instance instance) {
         double startTime = System.currentTimeMillis();
-        PartitionHeuristic sps = new PartitionHeuristic(instance, TIME_LIMIT);
+        PartitionHeuristic sps = new PartitionHeuristic(instance);
         System.out.println("solving with SPS..");
         Solution solSPS = sps.solve();
         solSPS.setTimeToSolve((System.currentTimeMillis() - startTime) / 1000.0);
@@ -55,7 +55,7 @@ public class Test {
         TabuSearch ts = new TabuSearch(
             NUMBER_OF_NEIGHBORS, SHORT_TERM_STRATEGIE, numOfMachineCombinations, UNSUCCESSFUL_NEIGHBOR_GENERATION_ATTEMPTS
         );
-        LocalSearch l = new LocalSearch(trivialSol, 0.0, NUMBER_OF_NON_IMPROVING_ITERATIONS, ts);
+        LocalSearch l = new LocalSearch(trivialSol, TIME_LIMIT, NUMBER_OF_NON_IMPROVING_ITERATIONS, ts);
         double startTime = System.currentTimeMillis();
         System.out.println("solving with TS..");
         Solution localSearchSol = l.solve();
@@ -64,6 +64,9 @@ public class Test {
     }
 
     public static void main(String[] args) {
+
+        // TODO: implement parameters (cores, time limit, ...)
+        System.out.println("available number of cores: " + Runtime.getRuntime().availableProcessors());
 
         File dir = new File(INSTANCE_PREFIX + CURRENT_INSTANCE_SET + "/");
         File[] directoryListing = dir.listFiles();
@@ -80,7 +83,7 @@ public class Test {
             Solution trivialSol = solveWithLPT(instance);
             Solution solSPS = solveWithSPS(instance);
             Solution mipSol = solveWithCPLEX(instance);
-            Solution tabuSearchSolution = solveWithTabuSearch(instance, trivialSol);
+            Solution tabuSearchSolution = solveWithTabuSearch(instance, solSPS);
 
             if (trivialSol.isFeasible() && solSPS.isFeasible() && mipSol.isFeasible() && tabuSearchSolution.isFeasible()) {
 //                PCMAX.SolutionWriter.writeSolution(SOLUTION_PREFIX + solutionName + ".txt", sol);
