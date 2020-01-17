@@ -3,3 +3,6 @@ pcmax.py
 *.iml
 out/
 paper/
+
+res/
+*.png
