@@ -3,33 +3,27 @@ package PCMAX.local_search;
 import PCMAX.Machine;
 import PCMAX.Solution;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public class SwapThread implements Runnable {
 
-    private Thread t;
-    private String threadName;
+    private final int rangeStartInner;
+    private final int rangeEndInner;
+    private final int rangeStartOuter;
+    private final int rangeEndOuter;
 
-    private int rangeStartInner;
-    private int rangeEndInner;
-    private int rangeStartOuter;
-    private int rangeEndOuter;
-
-    private Solution currSol;
-    private int idxMachineOne;
-    private int idxMachineTwo;
-    private Map<Solution, Swap> swapsBySolution;
-
-    private List<Solution> solutions;
+    private final Solution currSol;
+    private final int idxMachineOne;
+    private final int idxMachineTwo;
+    private final Map<Solution, Swap> swapsBySolution;
+    private final List<Solution> solutions;
 
     public SwapThread(
-        String name, int rangeStartInner, int rangeEndInner, int rangeStartOuter,
+        int rangeStartInner, int rangeEndInner, int rangeStartOuter,
         int rangeEndOuter, List<Solution> solutions, Solution currSol, int idxMachineOne,
         int idxMachineTwo, Map<Solution, Swap> swapsBySolution
     ) {
-        this.threadName = name;
         this.rangeStartInner = rangeStartInner;
         this.rangeEndInner = rangeEndInner;
         this.rangeStartOuter = rangeStartOuter;
@@ -42,9 +36,6 @@ public class SwapThread implements Runnable {
     }
 
     public void run() {
-
-        double startTime = System.currentTimeMillis();
-//        System.out.println("running: " + threadName);
 
         for (int jobOne = rangeStartOuter; jobOne < rangeEndOuter; jobOne++) {
             for (int jobTwo = rangeStartInner; jobTwo < rangeEndInner; jobTwo++) {
@@ -63,28 +54,11 @@ public class SwapThread implements Runnable {
                 tmpSol.getMachineAllocations().set(idxMachineOne, machineOne);
                 tmpSol.getMachineAllocations().set(idxMachineTwo, machineTwo);
 
-////                // FIRST-FIT
-//                if (tmpSol.getMakespan() < currSol.getMakespan()) {
-//                    System.out.println("first-fit swap: " + tmpSol.getMakespan());
-//                    return tmpSol;
-//                }
-
                 Swap swap = new Swap(machineOne, machineTwo, jOne, jTwo);
-
                 Solution sol = new Solution(tmpSol);
                 solutions.add(sol);
                 swapsBySolution.put(sol, swap);
-
             }
-        }
-//        System.out.println("thread " + threadName + " exiting with runtime: " + (System.currentTimeMillis() - startTime) / 1000.0 + "s");
-    }
-
-    public void start() {
-//        System.out.println("starting " +  threadName);
-        if (t == null) {
-            t = new Thread(this, threadName);
-            t.start();
         }
     }
 }
