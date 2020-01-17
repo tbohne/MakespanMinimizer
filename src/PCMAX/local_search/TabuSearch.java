@@ -6,12 +6,12 @@ import java.util.*;
 
 public class TabuSearch implements LocalSearchAlgorithm {
 
-    private int numberOfNeighbors;
-    private LocalSearchAlgorithm.ShortTermStrategies shortTermStrategy;
-    private int unsuccessfulNeighborGenerationAttempts;
-    private int maxTabuListLength;
+    private final int numberOfNeighbors;
+    private final LocalSearchAlgorithm.ShortTermStrategies shortTermStrategy;
+    private final int unsuccessfulNeighborGenerationAttempts;
+    private final int maxTabuListLength;
     private int tabuListClears;
-    private Queue<Swap> tabuList;
+    private final Queue<Swap> tabuList;
 
     public TabuSearch(
         int numberOfNeighbors, LocalSearchAlgorithm.ShortTermStrategies shortTermStrategy,
@@ -22,14 +22,13 @@ public class TabuSearch implements LocalSearchAlgorithm {
         this.maxTabuListLength = maxTabuListLength;
         this.unsuccessfulNeighborGenerationAttempts = unsuccessfulNeighborGenerationAttempts;
         this.tabuListClears = 0;
-        this.unsuccessfulNeighborGenerationAttempts = unsuccessfulNeighborGenerationAttempts;
         this.tabuList = new LinkedList<>();
     }
 
     /**
      * Clears the entries in the shift tabu list and increments the clear counter.
      */
-    public void clearTabuList() {
+    private void clearTabuList() {
         this.tabuList.clear();
         this.tabuListClears++;
     }
@@ -38,7 +37,7 @@ public class TabuSearch implements LocalSearchAlgorithm {
         return this.tabuListClears;
     }
 
-    public boolean tabuListContainsAnyOfTheSwaps(List<Swap> performedSwaps) {
+    private boolean tabuListContainsAnyOfTheSwaps(List<Swap> performedSwaps) {
         for (Swap swap : performedSwaps) {
             if (this.tabuList.contains(swap)) {
                 return true;
@@ -51,15 +50,13 @@ public class TabuSearch implements LocalSearchAlgorithm {
      * Adds the specified swap operation to the tabu list.
      * Replaces the oldest entry if the maximum length of the tabu list is reached.
      */
-    public void forbidSwaps(List<Swap> performedSwaps) {
+    private void forbidSwaps(List<Swap> performedSwaps) {
         if (this.tabuList.size() >= this.maxTabuListLength) {
             while (this.tabuList.size() + performedSwaps.size() >= this.maxTabuListLength) {
                 this.tabuList.poll();
             }
         }
-        for (Swap swap : performedSwaps) {
-            this.tabuList.add(swap);
-        }
+        this.tabuList.addAll(performedSwaps);
     }
 
     /**
@@ -68,7 +65,7 @@ public class TabuSearch implements LocalSearchAlgorithm {
      * @param solutions - list of generated solutions
      * @return best solution based on the costs
      */
-    public Solution getBestSolution(List<Solution> solutions) {
+    private Solution getBestSolution(List<Solution> solutions) {
         Solution bestSol = solutions.get(0);
         for (Solution sol : solutions) {
             if (sol.getMakespan() < bestSol.getMakespan()) {
@@ -83,17 +80,12 @@ public class TabuSearch implements LocalSearchAlgorithm {
         int failCnt = 0;
         Map<Solution, List<Swap>> swapsForSolution = new HashMap<>();
 
-//        System.out.println("TL: " + this.tabuList.size());
-//        System.out.println(this.tabuList);
-
         while (nbrs.size() < this.numberOfNeighbors) {
 
             List<Swap> performedSwaps = new ArrayList<>();
-            performedSwaps.clear();
             Solution neighbor = SwapOperator.generateSwapNeighbor(currSol, performedSwaps);
 
-//            System.out.println("TL: " + this.tabuList);
-//            System.out.println("shift: " + performedShifts);
+            System.out.println("TL: " + this.tabuList);
 
             if (!neighbor.isFeasible()) { continue; }
             swapsForSolution.put(neighbor, performedSwaps);
@@ -104,17 +96,17 @@ public class TabuSearch implements LocalSearchAlgorithm {
                 && neighbor.getMakespan() < currSol.getMakespan()
             ) {
                 this.forbidSwaps(performedSwaps);
-//                System.out.println("FIRST-FIT RETURN");
+                System.out.println("FIRST-FIT RETURN");
                 return neighbor;
             // BEST-FIT
             } else if (!this.tabuListContainsAnyOfTheSwaps(performedSwaps)) {
                 nbrs.add(neighbor);
             } else {
-//                System.out.println("TABU");
+                System.out.println("TABU");
                 // TABU
                 // ASPIRATION CRITERION
                 if (neighbor.getMakespan() < bestSol.getMakespan()) {
-//                    System.out.println("ASPIRATION!");
+                    System.out.println("ASPIRATION!");
                     if (this.shortTermStrategy == LocalSearchAlgorithm.ShortTermStrategies.FIRST_FIT) {
                         return neighbor;
                     } else {
@@ -126,17 +118,17 @@ public class TabuSearch implements LocalSearchAlgorithm {
                         failCnt = 0;
 
                         if (nbrs.size() == 0) {
-//                            System.out.println("CLEARING TL");
+                            System.out.println("CLEARING TL");
                             this.clearTabuList();
                         } else {
-//                            System.out.println("FAIL RETURN");
+                            System.out.println("FAIL RETURN");
                             return this.getBestSolution(nbrs);
                         }
                     }
                 }
             }
         }
-//        System.out.println("BEST-FIT RETURN");
+        System.out.println("BEST-FIT RETURN");
         Solution best = this.getBestSolution(nbrs);
         this.forbidSwaps(swapsForSolution.get(best));
         return best;

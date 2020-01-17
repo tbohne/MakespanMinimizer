@@ -10,7 +10,7 @@ public class PartialSolution implements Comparable<PartialSolution> {
     // contains a list where each entry corresponds to a list representing
     // one machine and containing the jobs performed by that machine
 
-    private List<Machine> machineAllocations;
+    private final List<Machine> machineAllocations;
 
     public PartialSolution(int numOfMachines) {
         this.machineAllocations = new ArrayList<>();
@@ -45,21 +45,15 @@ public class PartialSolution implements Comparable<PartialSolution> {
 
     @Override
     public int compareTo(PartialSolution other) {
-        if (other.computeGap() < this.computeGap()) {
-            return 1;
-        } else if (other.computeGap() > this.computeGap()) {
-            return -1;
-        } else {
-            return 0;
-        }
+        return Integer.compare(this.computeGap(), other.computeGap());
     }
 
     @Override
     public String toString() {
-        String str = "";
+        StringBuilder str = new StringBuilder();
         for (Machine machine : this.machineAllocations) {
-            str += machine.toString();
+            str.append(machine.toString());
         }
-        return str;
+        return str.toString();
     }
 }

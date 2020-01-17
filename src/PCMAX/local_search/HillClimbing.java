@@ -7,26 +7,12 @@ import java.util.List;
 
 public class HillClimbing implements LocalSearchAlgorithm {
 
-    private int numberOfNeighbors;
-    private LocalSearchAlgorithm.ShortTermStrategies shortTermStrategy;
+    private final int numberOfNeighbors;
+    private final LocalSearchAlgorithm.ShortTermStrategies shortTermStrategy;
 
     public HillClimbing(int numberOfNeighbors, LocalSearchAlgorithm.ShortTermStrategies shortTermStrategy) {
         this.numberOfNeighbors = numberOfNeighbors;
         this.shortTermStrategy = shortTermStrategy;
-    }
-
-    private Solution applyVariableNeighborhood(Solution currSol) {
-        return SwapOperator.generateSwapNeighbor(currSol, new ArrayList<>());
-    }
-
-    public Solution getBestSolution(List<Solution> solutions) {
-        Solution bestSol = solutions.get(0);
-        for (Solution sol : solutions) {
-            if (sol.getMakespan() < bestSol.getMakespan()) {
-                bestSol = sol;
-            }
-        }
-        return bestSol;
     }
 
     public Solution getNeighbor(Solution currSol, Solution bestSol) {
@@ -47,5 +33,19 @@ public class HillClimbing implements LocalSearchAlgorithm {
             }
         }
         return this.getBestSolution(nbrs);
+    }
+
+    private Solution applyVariableNeighborhood(Solution currSol) {
+        return SwapOperator.generateSwapNeighbor(currSol, new ArrayList<>());
+    }
+
+    private Solution getBestSolution(List<Solution> solutions) {
+        Solution bestSol = solutions.get(0);
+        for (Solution sol : solutions) {
+            if (sol.getMakespan() < bestSol.getMakespan()) {
+                bestSol = sol;
+            }
+        }
+        return bestSol;
     }
 }

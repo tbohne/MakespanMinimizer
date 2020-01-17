@@ -4,7 +4,7 @@ import java.util.*;
 
 public class Solution {
 
-    private Instance instance;
+    private final Instance instance;
     private List<Machine> machineAllocations;
     private double timeToSolve;
 
@@ -45,16 +45,13 @@ public class Solution {
 
     public boolean isFeasible() {
 
-        List<Integer> processingTimesCopy = new ArrayList<>();
-        for (int p : this.instance.getProcessingTimes()) {
-            processingTimesCopy.add(p);
-        }
+        List<Integer> processingTimesCopy = new ArrayList<>(this.instance.getProcessingTimes());
 
-        // check whether each job (represented by processing time) is assigned to a machine and not more
+        // checks whether each job (represented by processing time) is assigned to a machine exactly once
         for (Machine m : this.getMachineAllocations()) {
             for (int processingTime : m.getJobs()) {
                 if (!processingTimesCopy.contains(processingTime)) { return false; }
-                processingTimesCopy.remove(processingTimesCopy.indexOf(processingTime));
+                processingTimesCopy.remove((Integer) processingTime);
             }
         }
         return processingTimesCopy.size() == 0;
@@ -81,57 +78,28 @@ public class Solution {
 
     @Override
     public boolean equals(Object other) {
-        if (other == null) return false;
 
-        if (!(other instanceof Solution)) {
-            return false;
-        }
-        if (other == this) {
-            return true;
-        }
+        if (!(other instanceof Solution)) { return false; }
+        if (other == this) { return true; }
 
+        // it suffices here to call solution equal when they have the same makespan
         boolean equalMakespan = getMakespan() == ((Solution)other).getMakespan();
         boolean equalSizeOfMachines = this.getMachineAllocations().size() == ((Solution)other).getMachineAllocations().size();
-
-        if (!equalMakespan || !equalSizeOfMachines) {
-            return false;
-        }
-
-        // actually it suffices here to call solution equal when they have the same makespan
-
-//        for (int i = 0; i < this.getMachineAllocations().size(); i++) {
-//            if (!this.getMachineAllocations().get(i).equals(((Solution)other).getMachineAllocations().get(i))) {
-////            Set<Machine> r1 = new HashSet<Machine>(this.getMachineAllocations().get(i));
-////            Set<Machine> r2 = new HashSet<>((Solution)other).getMachineAllocations().get(i);
-////            return r1.equals(r2);
-//
-//                Collections.sort(this.getMachineAllocations().get(i).getJobs());
-//                Collections.sort(((Solution)other).getMachineAllocations().get(i).getJobs());
-////
-//                System.out.println(this.getMachineAllocations().get(i));
-//                System.out.println(((Solution)other).getMachineAllocations().get(i));
-////                System.exit(0);
-//
-////                System.out.println("false");
-//                return false;
-//            }
-//        }
-
-        return true;
+        return equalMakespan && equalSizeOfMachines;
     }
 
     @Override
     public String toString() {
-        String str = "";
-        str += this.instance.getNumOfMachines() + "\n";
-        str += this.instance.getNumOfJobs() + "\n";
+        StringBuilder str = new StringBuilder();
+        str.append(this.instance.getNumOfMachines()).append("\n");
+        str.append(this.instance.getNumOfJobs()).append("\n");
         for (Machine m : this.machineAllocations) {
             for (int j : m.getJobs()) {
-                str += j + " ";
+                str.append(j).append(" ");
             }
-            str += "\n";
+            str.append("\n");
         }
-        str += this.getMakespan() + "\n";
-        return str;
+        str.append(this.getMakespan()).append("\n");
+        return str.toString();
     }
 }

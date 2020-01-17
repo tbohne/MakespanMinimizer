@@ -5,9 +5,9 @@ import java.util.List;
 
 public class Instance {
 
-    private int numOfMachines;
-    private List<Integer> processingTimes;
-    private String name;
+    private final int numOfMachines;
+    private final List<Integer> processingTimes;
+    private final String name;
 
     public Instance(int numOfMachines, List<Integer> processingTimes, String name) {
         this.numOfMachines = numOfMachines;
@@ -19,9 +19,7 @@ public class Instance {
         this.numOfMachines = instance.getNumOfMachines();
         this.processingTimes = new ArrayList<>();
         this.name = instance.getName();
-        for (int processingTime : instance.getProcessingTimes()) {
-            processingTimes.add(processingTime);
-        }
+        processingTimes.addAll(instance.getProcessingTimes());
     }
 
     public String getName() {
@@ -42,10 +40,10 @@ public class Instance {
 
     @Override
     public String toString() {
-        String str = "machines: " + this.getNumOfMachines() + "\n";
-        str += "jobs: " + this.getNumOfJobs() + "\n";
+        StringBuilder str = new StringBuilder("machines: " + this.getNumOfMachines() + "\n");
+        str.append("jobs: ").append(this.getNumOfJobs()).append("\n");
         for (int processingTime : this.getProcessingTimes()) {
-            str += processingTime + " ";
+            str.append(processingTime).append(" ");
         }
         return str + "\n";
     }

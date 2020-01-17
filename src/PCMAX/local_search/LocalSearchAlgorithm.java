@@ -10,7 +10,7 @@ public interface LocalSearchAlgorithm {
     /**
      * Enumeration containing the different short term strategies for the local search.
      */
-    public enum ShortTermStrategies {
+    enum ShortTermStrategies {
         FIRST_FIT,
         BEST_FIT
     }

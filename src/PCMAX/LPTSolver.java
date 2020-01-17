@@ -1,4 +1,4 @@
-package PCMAX;;
+package PCMAX;
 
 import java.util.*;
 
@@ -20,10 +20,7 @@ public class LPTSolver {
             machines.add(m);
         }
         Solution sol = new Solution(instance);
-        List<Machine> machineAllocations = new ArrayList<>();
-        for (Machine m : machines) {
-            machineAllocations.add(m);
-        }
+        List<Machine> machineAllocations = new ArrayList<>(machines);
         sol.setMachineAllocations(machineAllocations);
         return sol;
     }

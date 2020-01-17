@@ -5,8 +5,8 @@ import java.util.List;
 
 public class Machine implements Comparable<Machine> {
 
-    private List<Integer> jobs;
-    private int id;
+    private final List<Integer> jobs;
+    private final int id;
 
     public Machine(int id) {
         this.jobs = new ArrayList<>();
@@ -16,9 +16,7 @@ public class Machine implements Comparable<Machine> {
     public Machine(Machine machine) {
         this.id = machine.getId();
         this.jobs = new ArrayList<>();
-        for (int job : machine.getJobs()) {
-            this.jobs.add(job);
-        }
+        this.jobs.addAll(machine.getJobs());
     }
 
     public int getId() {
@@ -48,14 +46,9 @@ public class Machine implements Comparable<Machine> {
 
     @Override
     public boolean equals(Object other) {
-        if (other == null) return false;
 
-        if (!(other instanceof Machine)) {
-            return false;
-        }
-        if (other == this) {
-            return true;
-        }
+        if (!(other instanceof Machine)) { return false; }
+        if (other == this) { return true; }
 
         boolean equalID = this.getId() == ((Machine) other).getId();
         boolean equalNumOfJobs = this.getJobs().size() == ((Machine) other).getJobs().size();
@@ -63,12 +56,9 @@ public class Machine implements Comparable<Machine> {
 
         for (int i = 0; i < this.getJobs().size(); i++) {
             if (!this.getJobs().get(i).equals(((Machine) other).getJobs().get(i))) {
-//                System.out.println(this.getJobs().get(i));
-//                System.out.println(((Machine) other).getJobs().get(i));
                 return false;
             }
         }
-
         return true;
     }
 
@@ -79,10 +69,10 @@ public class Machine implements Comparable<Machine> {
 
     @Override
     public String toString() {
-        String str = "";
+        StringBuilder str = new StringBuilder();
         for (int job : this.jobs) {
-            str += job + " ";
+            str.append(job).append(" ");
         }
-        return str.isEmpty() ? "--------------------\n" : str + "\n";
+        return (str.length() == 0) ? "--------------------\n" : str + "\n";
     }
 }
