@@ -10,7 +10,7 @@ public class Test {
     private static final String INSTANCE_PREFIX = "res/instances/";
     private static final String SOLUTION_PREFIX = "res/solutions/";
     private static final String CURRENT_INSTANCE_SET = "S_TEST";
-    private static final double TIME_LIMIT = 10;
+    private static final double TIME_LIMIT = 180;
 
     /********************** CPLEX CONFIG **********************/
     private static final boolean HIDE_CPLEX_OUTPUT = true;
@@ -50,9 +50,9 @@ public class Test {
         return solSPS;
     }
 
-    public static Solution solveWithTabuSearch(Instance instance, Solution trivialSol, long seed) {
+    public static Solution solveWithTabuSearch(Instance instance, Solution trivialSol, long seed, int numOfCores) {
         int numOfMachineCombinations = instance.getNumOfMachines() * (instance.getNumOfMachines() - 1) / 2;
-        SwapOperator swapOperator = new SwapOperator(seed);
+        SwapOperator swapOperator = new SwapOperator(seed, numOfCores);
         TabuSearch ts = new TabuSearch(
             NUMBER_OF_NEIGHBORS, SHORT_TERM_STRATEGIE, numOfMachineCombinations, UNSUCCESSFUL_NEIGHBOR_GENERATION_ATTEMPTS, swapOperator
         );
@@ -102,7 +102,7 @@ public class Test {
             Solution trivialSol = solveWithLPT(instance);
             Solution solSPS = solveWithSPS(instance);
             Solution mipSol = solveWithCPLEX(instance);
-            Solution tabuSearchSolution = solveWithTabuSearch(instance, solSPS, seed);
+            Solution tabuSearchSolution = solveWithTabuSearch(instance, solSPS, seed, numOfCores);
 
             if (trivialSol.isFeasible() && solSPS.isFeasible() && mipSol.isFeasible() && tabuSearchSolution.isFeasible()) {
 //                PCMAX.SolutionWriter.writeSolution(SOLUTION_PREFIX + solutionName + ".txt", sol);

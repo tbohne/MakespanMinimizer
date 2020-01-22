@@ -6,18 +6,19 @@ import java.util.*;
 
 public class SwapOperator {
 
-    private long seed;
+    private Random rand;
+    private int numOfCores;
 
-    public SwapOperator(long seed) {
-        this.seed = seed;
+    public SwapOperator(long seed, int numOfCores) {
+        this.rand = new Random(seed);
+        this.numOfCores = numOfCores;
     }
 
     private int getRandomNumberInRange(int min, int max) {
         if (min > max) {
             throw new IllegalArgumentException("max must be greater than min");
         }
-        Random r = new Random(this.seed);
-        return r.nextInt((max - min) + 1) + min;
+        return this.rand.nextInt((max - min) + 1) + min;
     }
 
     private Solution getBestSol(List<Solution> solutions, Map<Solution, Swap> swapBySolution, List<Swap> performedSwaps) {
@@ -47,30 +48,22 @@ public class SwapOperator {
         int outerRange = currSol.getMachineAllocations().get(idxMachineOne).getJobs().size();
         int innerRange = currSol.getMachineAllocations().get(idxMachineTwo).getJobs().size();
 
-        // currently using 4 threads TODO: implement user specified number of threads
+        List<Thread> threads = new ArrayList<>();
+        for (int thread = 0; thread < numOfCores; thread++) {
 
-        Thread i1 = new Thread(new SwapThread(
-            0, innerRange, 0, outerRange / 4, res, currSol, idxMachineOne, idxMachineTwo, swapsBySolution
-        ));
-        i1.start();
-        Thread i2 = new Thread(new SwapThread(
-            0, innerRange, outerRange / 4, outerRange / 2, res, currSol, idxMachineOne, idxMachineTwo, swapsBySolution
-        ));
-        i2.start();
-        Thread i3 = new Thread(new SwapThread(
-            0, innerRange, outerRange / 2, outerRange - outerRange / 4, res, currSol, idxMachineOne, idxMachineTwo, swapsBySolution
-        ));
-        i3.start();
-        Thread i4 = new Thread(new SwapThread(
-            0, innerRange, outerRange - outerRange / 4, outerRange, res, currSol, idxMachineOne, idxMachineTwo, swapsBySolution
-        ));
-        i4.start();
+            int rangeStartOuter = thread / numOfCores * outerRange;
+            int rangeEndOuter = (thread + 1) / numOfCores * outerRange;
+
+            threads.add(new Thread(new SwapThread(
+                0, innerRange, rangeStartOuter, rangeEndOuter, res, currSol, idxMachineOne, idxMachineTwo, swapsBySolution
+            )));
+        }
 
         try {
-            i1.join();
-            i2.join();
-            i3.join();
-            i4.join();
+            for (Thread t : threads) {
+                t.start();
+                t.join();
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
