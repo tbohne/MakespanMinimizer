@@ -65,8 +65,25 @@ public class Test {
 
     public static void main(String[] args) {
 
-        // TODO: implement parameters (cores, time limit, ...)
+        if (args.length != 5) {
+            System.out.println("invalid arguments..");
+            System.out.println("usage:");
+            System.out.println("solver-program <instance> <solution> <number-cores> <time-limit> <seed>");
+            System.exit(0);
+        } else {
+            System.out.println("instance: " + args[0]);
+            System.out.println("solution: " + args[1]);
+            System.out.println("number-cores: " + args[2]);
+            System.out.println("time-limit: " + args[3]);
+            System.out.println("seed: " + args[4]);
+        }
+
+        int numOfCores = Integer.parseInt(args[2]);
         System.out.println("available number of cores: " + Runtime.getRuntime().availableProcessors());
+        if (numOfCores > Runtime.getRuntime().availableProcessors()) {
+            numOfCores = Runtime.getRuntime().availableProcessors();
+            System.out.println("the specified number of cores exceeds the available number of cores: set to " + numOfCores + " cores.");
+        }
 
         File dir = new File(INSTANCE_PREFIX + CURRENT_INSTANCE_SET + "/");
         File[] directoryListing = dir.listFiles();
