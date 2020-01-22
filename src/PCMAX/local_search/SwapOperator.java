@@ -6,15 +6,21 @@ import java.util.*;
 
 public class SwapOperator {
 
-    private static int getRandomNumberInRange(int min, int max) {
+    private long seed;
+
+    public SwapOperator(long seed) {
+        this.seed = seed;
+    }
+
+    private int getRandomNumberInRange(int min, int max) {
         if (min > max) {
             throw new IllegalArgumentException("max must be greater than min");
         }
-        Random r = new Random();
+        Random r = new Random(this.seed);
         return r.nextInt((max - min) + 1) + min;
     }
 
-    private static Solution getBestSol(List<Solution> solutions, Map<Solution, Swap> swapBySolution, List<Swap> performedSwaps) {
+    private Solution getBestSol(List<Solution> solutions, Map<Solution, Swap> swapBySolution, List<Swap> performedSwaps) {
         Solution best = solutions.get(0);
         for (Solution sol : solutions) {
             if (sol.getMakespan() < best.getMakespan()) {
@@ -25,13 +31,13 @@ public class SwapOperator {
         return best;
     }
 
-    private static Solution getRandomSol(List<Solution> solutions, Map<Solution, Swap> swapBySolution, List<Swap> performedSwaps) {
+    private Solution getRandomSol(List<Solution> solutions, Map<Solution, Swap> swapBySolution, List<Swap> performedSwaps) {
         Solution random = solutions.get(getRandomNumberInRange(0, solutions.size() - 1));
         performedSwaps.add(swapBySolution.get(random));
         return random;
     }
 
-    private static Solution performSwap(Solution currSol, int idxMachineOne, int idxMachineTwo, List<Swap> performedSwaps) {
+    private Solution performSwap(Solution currSol, int idxMachineOne, int idxMachineTwo, List<Swap> performedSwaps) {
 
         Map<Solution, Swap> swapsBySolution = new HashMap<>();
         swapsBySolution = Collections.synchronizedMap(swapsBySolution);
@@ -77,7 +83,7 @@ public class SwapOperator {
         return getBestSol(res, swapsBySolution, performedSwaps);
     }
 
-    public static Solution generateSwapNeighbor(Solution currSol, List<Swap> performedSwaps) {
+    public Solution generateSwapNeighbor(Solution currSol, List<Swap> performedSwaps) {
 
         // select random machine with at least two jobs assigned to it
         int machineToShiftJobFrom = getRandomNumberInRange(0, currSol.getMachineAllocations().size() - 1);

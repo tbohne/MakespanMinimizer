@@ -12,10 +12,11 @@ public class TabuSearch implements LocalSearchAlgorithm {
     private final int maxTabuListLength;
     private int tabuListClears;
     private final Queue<Swap> tabuList;
+    private SwapOperator swapOperator;
 
     public TabuSearch(
         int numberOfNeighbors, LocalSearchAlgorithm.ShortTermStrategies shortTermStrategy,
-        int maxTabuListLength, int unsuccessfulNeighborGenerationAttempts
+        int maxTabuListLength, int unsuccessfulNeighborGenerationAttempts, SwapOperator swapOperator
     ) {
         this.numberOfNeighbors = numberOfNeighbors;
         this.shortTermStrategy = shortTermStrategy;
@@ -23,6 +24,7 @@ public class TabuSearch implements LocalSearchAlgorithm {
         this.unsuccessfulNeighborGenerationAttempts = unsuccessfulNeighborGenerationAttempts;
         this.tabuListClears = 0;
         this.tabuList = new LinkedList<>();
+        this.swapOperator = swapOperator;
     }
 
     /**
@@ -83,7 +85,7 @@ public class TabuSearch implements LocalSearchAlgorithm {
         while (nbrs.size() < this.numberOfNeighbors) {
 
             List<Swap> performedSwaps = new ArrayList<>();
-            Solution neighbor = SwapOperator.generateSwapNeighbor(currSol, performedSwaps);
+            Solution neighbor = this.swapOperator.generateSwapNeighbor(currSol, performedSwaps);
 
             System.out.println("TL: " + this.tabuList);
 

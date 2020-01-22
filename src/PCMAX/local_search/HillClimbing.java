@@ -9,10 +9,12 @@ public class HillClimbing implements LocalSearchAlgorithm {
 
     private final int numberOfNeighbors;
     private final LocalSearchAlgorithm.ShortTermStrategies shortTermStrategy;
+    private SwapOperator swapOperator;
 
-    public HillClimbing(int numberOfNeighbors, LocalSearchAlgorithm.ShortTermStrategies shortTermStrategy) {
+    public HillClimbing(int numberOfNeighbors, LocalSearchAlgorithm.ShortTermStrategies shortTermStrategy, SwapOperator swapOperator) {
         this.numberOfNeighbors = numberOfNeighbors;
         this.shortTermStrategy = shortTermStrategy;
+        this.swapOperator = swapOperator;
     }
 
     public Solution getNeighbor(Solution currSol, Solution bestSol) {
@@ -36,7 +38,7 @@ public class HillClimbing implements LocalSearchAlgorithm {
     }
 
     private Solution applyVariableNeighborhood(Solution currSol) {
-        return SwapOperator.generateSwapNeighbor(currSol, new ArrayList<>());
+        return this.swapOperator.generateSwapNeighbor(currSol, new ArrayList<>());
     }
 
     private Solution getBestSolution(List<Solution> solutions) {

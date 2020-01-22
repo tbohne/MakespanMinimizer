@@ -50,10 +50,11 @@ public class Test {
         return solSPS;
     }
 
-    public static Solution solveWithTabuSearch(Instance instance, Solution trivialSol) {
+    public static Solution solveWithTabuSearch(Instance instance, Solution trivialSol, long seed) {
         int numOfMachineCombinations = instance.getNumOfMachines() * (instance.getNumOfMachines() - 1) / 2;
+        SwapOperator swapOperator = new SwapOperator(seed);
         TabuSearch ts = new TabuSearch(
-            NUMBER_OF_NEIGHBORS, SHORT_TERM_STRATEGIE, numOfMachineCombinations, UNSUCCESSFUL_NEIGHBOR_GENERATION_ATTEMPTS
+            NUMBER_OF_NEIGHBORS, SHORT_TERM_STRATEGIE, numOfMachineCombinations, UNSUCCESSFUL_NEIGHBOR_GENERATION_ATTEMPTS, swapOperator
         );
         LocalSearch l = new LocalSearch(trivialSol, TIME_LIMIT, NUMBER_OF_NON_IMPROVING_ITERATIONS, ts);
         double startTime = System.currentTimeMillis();
@@ -84,6 +85,7 @@ public class Test {
             numOfCores = Runtime.getRuntime().availableProcessors();
             System.out.println("the specified number of cores exceeds the available number of cores: set to " + numOfCores + " cores.");
         }
+        long seed = Long.parseLong(args[4]);
 
         File dir = new File(INSTANCE_PREFIX + CURRENT_INSTANCE_SET + "/");
         File[] directoryListing = dir.listFiles();
@@ -100,7 +102,7 @@ public class Test {
             Solution trivialSol = solveWithLPT(instance);
             Solution solSPS = solveWithSPS(instance);
             Solution mipSol = solveWithCPLEX(instance);
-            Solution tabuSearchSolution = solveWithTabuSearch(instance, solSPS);
+            Solution tabuSearchSolution = solveWithTabuSearch(instance, solSPS, seed);
 
             if (trivialSol.isFeasible() && solSPS.isFeasible() && mipSol.isFeasible() && tabuSearchSolution.isFeasible()) {
 //                PCMAX.SolutionWriter.writeSolution(SOLUTION_PREFIX + solutionName + ".txt", sol);
