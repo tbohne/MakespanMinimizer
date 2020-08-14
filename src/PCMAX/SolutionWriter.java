@@ -5,8 +5,17 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
+/**
+ * Writes solutions for the P||C_max problem.
+ */
 public class SolutionWriter {
 
+    /**
+     * Writes the string representation of the solution to the specified file.
+     *
+     * @param filename - name of the file to write to
+     * @param sol      - solution to be written
+     */
     public static void writeSolution(String filename, Solution sol) {
         try {
             File file = new File(filename);
@@ -23,6 +32,14 @@ public class SolutionWriter {
         }
     }
 
+    /**
+     * Writes the solution's relevant information to the specified CSV file.
+     *
+     * @param filename  - name of the CSV file to write to
+     * @param sol       - solution to be written
+     * @param solver    - solver that was used to generate the solution
+     * @param timeLimit - time limit that was satisfied
+     */
     public static void writeSolutionAsCSV(String filename, Solution sol, String solver, double timeLimit) {
         try {
             File file = new File(filename);

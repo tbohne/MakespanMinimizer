@@ -6,6 +6,9 @@ import PCMAX.Solution;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Thread that is used to generate neighboring solutions based on the swap-neighborhood.
+ */
 public class SwapThread implements Runnable {
 
     private final int rangeStartInner;
@@ -19,6 +22,19 @@ public class SwapThread implements Runnable {
     private final Map<Solution, Swap> swapsBySolution;
     private final List<Solution> solutions;
 
+    /**
+     * Constructor
+     *
+     * @param rangeStartInner - starting idx for the inner loop
+     * @param rangeEndInner   - ending idx for the inner loop
+     * @param rangeStartOuter - starting idx for the outer loop
+     * @param rangeEndOuter   - ending idx for the outer loop
+     * @param solutions       - list to store neighboring solutions in
+     * @param currSol         - solution to generate neighbors for
+     * @param idxMachineOne   - first machine involved in the swap
+     * @param idxMachineTwo   - second machine involved in the swap
+     * @param swapsBySolution - map to store swaps that lead to the solutions
+     */
     public SwapThread(
         int rangeStartInner, int rangeEndInner, int rangeStartOuter,
         int rangeEndOuter, List<Solution> solutions, Solution currSol, int idxMachineOne,
@@ -35,6 +51,10 @@ public class SwapThread implements Runnable {
         this.swapsBySolution = swapsBySolution;
     }
 
+    /**
+     * Swaps each pair of jobs in the specified range for the specified machines and stores
+     * the generated solutions and swap operations.
+     */
     public void run() {
 
         for (int jobOne = rangeStartOuter; jobOne < rangeEndOuter; jobOne++) {
@@ -55,9 +75,8 @@ public class SwapThread implements Runnable {
                 tmpSol.getMachineAllocations().set(idxMachineTwo, machineTwo);
 
                 Swap swap = new Swap(machineOne, machineTwo, jOne, jTwo);
-                Solution sol = new Solution(tmpSol);
-                solutions.add(sol);
-                swapsBySolution.put(sol, swap);
+                solutions.add(tmpSol);
+                swapsBySolution.put(tmpSol, swap);
             }
         }
     }

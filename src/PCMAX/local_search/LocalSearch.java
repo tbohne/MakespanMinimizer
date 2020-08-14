@@ -2,6 +2,9 @@ package PCMAX.local_search;
 
 import PCMAX.Solution;
 
+/**
+ * Implementation of a generic local search algorithm.
+ */
 public class LocalSearch {
 
     private Solution currSol;
@@ -34,7 +37,7 @@ public class LocalSearch {
     }
 
     /**
-     * Improves a given solution to a stacking problem using a local search.
+     * Improves a given solution using a local search.
      *
      * @return best solution generated in the local search procedure
      */
@@ -52,7 +55,6 @@ public class LocalSearch {
      */
     private Solution getNeighbor(LocalSearchAlgorithm localSearchAlgorithm) {
         Solution sol = localSearchAlgorithm.getNeighbor(this.currSol, this.bestSol);
-//        System.out.println("curr: " + sol.getMakespan());
         return sol == null ? this.currSol : sol;
     }
 
@@ -60,15 +62,12 @@ public class LocalSearch {
      * Updates the current solution with the best neighbor.
      * Additionally, the best solution gets updated if a new best solution is found.
      *
-     * @param iteration    - current iteration
+     * @param iteration            - current iteration
      * @param localSearchAlgorithm - neighborhood structure used to generate neighboring solutions
      */
     private void updateCurrentSolution(int iteration, LocalSearchAlgorithm localSearchAlgorithm) {
         this.currSol = this.getNeighbor(localSearchAlgorithm);
         if (this.currSol.getMakespan() < this.bestSol.getMakespan()) {
-            //System.out.println("IMPROVEMENT !!");
-            //System.out.println(this.currSol.getMakespan());
-            //System.out.println("feasible: " + this.currSol.isFeasible());
             this.bestSol = this.currSol;
             this.iterationOfLastImprovement = iteration;
         }
@@ -82,9 +81,6 @@ public class LocalSearch {
     private void solveIterationsSinceLastImprovement(LocalSearchAlgorithm localSearchAlgorithm) {
         int iteration = 0;
         while (Math.abs(this.iterationOfLastImprovement - iteration) < this.numberOfNonImprovingIterations) {
-            // System.out.println("non improving iterations: " + Math.abs(this.iterationOfLastImprovement - iteration));
-//            System.out.println("runtime: " + (System.currentTimeMillis() - this.startTime) / 1000);
-//            System.out.println("timelimit: " + this.timeLimit);
             if (this.timeLimit != 0 && (System.currentTimeMillis() - this.startTime) / 1000 > this.timeLimit) { break; }
             this.updateCurrentSolution(iteration++, localSearchAlgorithm);
         }

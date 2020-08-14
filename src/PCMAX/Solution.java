@@ -2,17 +2,30 @@ package PCMAX;
 
 import java.util.*;
 
+/**
+ * Represents a solution (schedule) to P||C_max.
+ */
 public class Solution {
 
     private final Instance instance;
     private List<Machine> machineAllocations;
     private double timeToSolve;
 
+    /**
+     * Constructor
+     *
+     * @param instance - instance the schedule is generated for
+     */
     public Solution(Instance instance) {
         this.instance = instance;
         this.machineAllocations = new ArrayList<>();
     }
 
+    /**
+     * Copy-Constructor
+     *
+     * @param sol - solution to be copied
+     */
     public Solution(Solution sol) {
         this.instance = new Instance(sol.instance);
         this.machineAllocations = new ArrayList<>();
@@ -23,26 +36,56 @@ public class Solution {
         this.timeToSolve = sol.getTimeToSolveAsDouble();
     }
 
+    /**
+     * Sets the runtime to generate the solution.
+     *
+     * @param timeToSolve - runtime to generate solution
+     */
     public void setTimeToSolve(double timeToSolve) {
         this.timeToSolve = timeToSolve;
     }
 
+    /**
+     * Retrieves the runtime (as string).
+     *
+     * @return runtime string
+     */
     public String getTimeToSolve() {
         return String.format("%.02f", this.timeToSolve).replace(",", ".");
     }
 
-    public double getTimeToSolveAsDouble() {
+    /**
+     * Retrieves the runtime.
+     *
+     * @return runtime
+     */
+    private double getTimeToSolveAsDouble() {
         return this.timeToSolve;
     }
 
+    /**
+     * Sets the machine allocations (job assignments to machines).
+     *
+     * @param machineAllocations - job assignments to the machines
+     */
     public void setMachineAllocations(List<Machine> machineAllocations) {
         this.machineAllocations = machineAllocations;
     }
 
+    /**
+     * Retrieves the machine allocations.
+     *
+     * @return machine allocations
+     */
     public List<Machine> getMachineAllocations() {
         return this.machineAllocations;
     }
 
+    /**
+     * Checks the solution's feasibility.
+     *
+     * @return whether the schedule is feasible
+     */
     public boolean isFeasible() {
 
         List<Integer> processingTimesCopy = new ArrayList<>(this.instance.getProcessingTimes());
@@ -57,6 +100,11 @@ public class Solution {
         return processingTimesCopy.size() == 0;
     }
 
+    /**
+     * Retrieves the schedule's makespan.
+     *
+     * @return makespan of the schedule
+     */
     public int getMakespan() {
         int makespan = 0;
         for (Machine m : this.machineAllocations) {
@@ -67,15 +115,31 @@ public class Solution {
         return makespan;
     }
 
+    /**
+     * Retrieves the name of the solved instance.
+     *
+     * @return name of solved instance
+     */
     public String getNameOfSolvedInstance() {
         return this.instance.getName();
     }
 
+    /**
+     * Returns the solution's hashcode.
+     *
+     * @return hashcode of the solution
+     */
     @Override
     public int hashCode() {
         return this.getMakespan() * this.getMachineAllocations().size();
     }
 
+    /**
+     * Checks equality for two solutions.
+     *
+     * @param other - solution to be compared to
+     * @return whether the two solutions are equal
+     */
     @Override
     public boolean equals(Object other) {
 
@@ -88,6 +152,11 @@ public class Solution {
         return equalMakespan && equalSizeOfMachines;
     }
 
+    /**
+     * Returns a string representation of the schedule.
+     *
+     * @return string representation
+     */
     @Override
     public String toString() {
         StringBuilder str = new StringBuilder();

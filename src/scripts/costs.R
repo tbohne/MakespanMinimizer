@@ -1,8 +1,8 @@
 library(ggplot2)
 
-input <- read.csv(file = "../../res/solutions/S_TEST_solutions.csv", header = TRUE, sep = ",")
+input <- read.csv(file = "../../res/solutions/EVAL_solutions.csv", header = TRUE, sep = ",")
 
-solverEntries <- subset(input, solver == "LPT" | solver == "SPS" | solver == "CPLEX" | solver == "TS")
+solverEntries <- subset(input, solver == "LPT" | solver == "SPS" | solver == "CPLEX" | solver == "TS" | solver == "CB" | solver == "MF")
 plotPointsPre <- ggplot(data = solverEntries, aes(x = obj, y = instance, color = solver, group = solver))
 finalPlot <- plotPointsPre + geom_point() + xlab("costs") + ylab("instance")
 ggsave(finalPlot, file = "solver_instance_cost.png", width=6, height=4)
@@ -15,5 +15,7 @@ compute_avg_costs <- function(s) {
 
 paste("avg costs of LPT: ", compute_avg_costs("LPT"))
 paste("avg costs of SPS: ", compute_avg_costs("SPS"))
+paste("avg costs of MF: ", compute_avg_costs("MF"))
+paste("avg costs of CB: ", compute_avg_costs("CB"))
 paste("avg costs of CPLEX: ", compute_avg_costs("CPLEX"))
 paste("avg costs of TS: ", compute_avg_costs("TS"))

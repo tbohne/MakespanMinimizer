@@ -6,6 +6,9 @@ import ilog.cplex.IloCplex;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * MIP formulation of the P||C_max problem.
+ */
 public class MIPFormulation {
 
     private final Instance instance;
@@ -31,6 +34,11 @@ public class MIPFormulation {
         this.tolerance = tolerance;
     }
 
+    /**
+     * Solves the MIP formulation with CPLEX.
+     *
+     * @return generated solution
+     */
     public Solution solve() {
 
         Solution sol = new Solution(instance);
@@ -44,12 +52,10 @@ public class MIPFormulation {
 
             IloIntVar cMax = cplex.intVar(0, Integer.MAX_VALUE);
             cplex.addMinimize(cMax);
-
             this.addConstraints(cplex, x, cMax);
 
             this.setCPLEXConfig(cplex);
             double startTime = cplex.getCplexTime();
-
             if (cplex.solve()) {
                 this.generateSolutionFromVariableAssignments(sol, x, cplex);
                 sol.setTimeToSolve(cplex.getCplexTime() - startTime);
@@ -62,6 +68,14 @@ public class MIPFormulation {
         return sol;
     }
 
+    /**
+     * Generates a solution from the specified variable assignments.
+     *
+     * @param sol   - solution to be generated
+     * @param x     - binary variables representing machine-job-assignments
+     * @param cplex - cplex model
+     * @throws ilog.concert.IloException
+     */
     private void generateSolutionFromVariableAssignments(Solution sol, IloIntVar[][] x, IloCplex cplex) throws ilog.concert.IloException {
         List<Machine> machines = new ArrayList<>();
         for (int i = 0; i < this.instance.getNumOfMachines(); i++) {
@@ -77,12 +91,27 @@ public class MIPFormulation {
         sol.setMachineAllocations(machines);
     }
 
+    /**
+     * Initializes the binary variables representing machine-job-assignments.
+     *
+     * @param cplex - cplex model
+     * @param x     - binary variables representing machine-job-assignments
+     * @throws ilog.concert.IloException
+     */
     private void initVariables(IloCplex cplex, IloIntVar[][] x) throws ilog.concert.IloException {
         for (int i = 0; i < this.instance.getNumOfMachines(); i++) {
             x[i] = cplex.intVarArray(this.instance.getNumOfJobs(), 0, 1);
         }
     }
 
+    /**
+     * Adds the constraints to be satisfied in the P||C_max problem.
+     *
+     * @param cplex - cplex model
+     * @param x     - binary variables representing machine-job-assignments
+     * @param cMax  - objective value
+     * @throws ilog.concert.IloException
+     */
     private void addConstraints(IloCplex cplex, IloIntVar[][] x, IloIntVar cMax ) throws ilog.concert.IloException {
 
         // --- Constraint (1) ---
@@ -104,6 +133,12 @@ public class MIPFormulation {
         }
     }
 
+    /**
+     * Configures CPLEX.
+     *
+     * @param cplex - cplex model to be configured.
+     * @throws ilog.concert.IloException
+     */
     private void setCPLEXConfig(IloCplex cplex) throws ilog.concert.IloException {
 
         if (this.hideCPLEXOutput) {

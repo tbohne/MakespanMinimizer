@@ -2,15 +2,10 @@ package PCMAX;
 
 import PCMAX.local_search.*;
 
-import java.io.File;
 import java.util.Arrays;
+import java.util.Collections;
 
 public class Test {
-
-    private static final String INSTANCE_PREFIX = "res/instances/";
-    private static final String SOLUTION_PREFIX = "res/solutions/";
-    private static final String CURRENT_INSTANCE_SET = "S_TEST";
-    private static final double TIME_LIMIT = 180;
 
     /********************** CPLEX CONFIG **********************/
     private static final boolean HIDE_CPLEX_OUTPUT = true;
@@ -21,19 +16,31 @@ public class Test {
     /**********************************************************/
 
     /*********************** TS CONFIG ************************/
-    private static final int NUMBER_OF_NEIGHBORS = 5;
-    private static final LocalSearchAlgorithm.ShortTermStrategies SHORT_TERM_STRATEGIE = LocalSearchAlgorithm.ShortTermStrategies.BEST_FIT;
+    private static final LocalSearchAlgorithm.ShortTermStrategies SHORT_TERM_STRATEGY = LocalSearchAlgorithm.ShortTermStrategies.BEST_FIT;
     private static final int UNSUCCESSFUL_NEIGHBOR_GENERATION_ATTEMPTS = 10;
-    private static final int NUMBER_OF_NON_IMPROVING_ITERATIONS = 900;
+    private static final int NUMBER_OF_NON_IMPROVING_ITERATIONS = 500;
     /**********************************************************/
 
-    public static Solution solveWithCPLEX(Instance instance) {
+    /**
+     * Solves the instance using CPLEX with an LP formulation.
+     *
+     * @param instance  - instance to be solved
+     * @param timeLimit - time limit to be satisfied
+     * @return generated solution
+     */
+    private static Solution solveWithCPLEX(Instance instance, double timeLimit) {
         System.out.println("solving with CPLEX..");
-        MIPFormulation mip = new MIPFormulation(instance, TIME_LIMIT, HIDE_CPLEX_OUTPUT, MIP_EMPHASIS, MIP_TOLERANCE);
+        MIPFormulation mip = new MIPFormulation(instance, timeLimit, HIDE_CPLEX_OUTPUT, MIP_EMPHASIS, MIP_TOLERANCE);
         return mip.solve();
     }
 
-    public static Solution solveWithLPT(Instance instance) {
+    /**
+     * Solves the instance using LPT.
+     *
+     * @param instance - instance to be solved
+     * @return generated solution
+     */
+    private static Solution solveWithLPT(Instance instance) {
         double startTime = System.currentTimeMillis();
         System.out.println("solving with LPT..");
         Solution trivialSol = LPTSolver.solve(instance);
@@ -41,7 +48,13 @@ public class Test {
         return trivialSol;
     }
 
-    public static Solution solveWithSPS(Instance instance) {
+    /**
+     * Solves the instance using SPS.
+     *
+     * @param instance - instance to be solved
+     * @return generated solution
+     */
+    private static Solution solveWithSPS(Instance instance) {
         double startTime = System.currentTimeMillis();
         PartitionHeuristic sps = new PartitionHeuristic(instance);
         System.out.println("solving with SPS..");
@@ -50,18 +63,119 @@ public class Test {
         return solSPS;
     }
 
-    public static Solution solveWithTabuSearch(Instance instance, Solution trivialSol, long seed, int numOfCores) {
+    /**
+     * Solves the instance using TS.
+     *
+     * @param instance   - instance to be solved
+     * @param trivialSol - trivial initial solution
+     * @param seed       - seed to initialize PRNG
+     * @param numOfCores - number of cores to be used
+     * @param timeLimit  - time limit to be satisfied
+     * @return generated solution
+     */
+    private static Solution solveWithTabuSearch(Instance instance, Solution trivialSol, long seed, int numOfCores, double timeLimit) {
         int numOfMachineCombinations = instance.getNumOfMachines() * (instance.getNumOfMachines() - 1) / 2;
         SwapOperator swapOperator = new SwapOperator(seed, numOfCores);
+
+        int nbrs = instance.getNumOfJobs() <= 100 ? instance.getNumOfJobs() / 2 : 3;
+
         TabuSearch ts = new TabuSearch(
-            NUMBER_OF_NEIGHBORS, SHORT_TERM_STRATEGIE, numOfMachineCombinations, UNSUCCESSFUL_NEIGHBOR_GENERATION_ATTEMPTS, swapOperator
+            nbrs, SHORT_TERM_STRATEGY, numOfMachineCombinations, UNSUCCESSFUL_NEIGHBOR_GENERATION_ATTEMPTS, swapOperator
         );
-        LocalSearch l = new LocalSearch(trivialSol, TIME_LIMIT, NUMBER_OF_NON_IMPROVING_ITERATIONS, ts);
+        LocalSearch l = new LocalSearch(trivialSol, timeLimit, NUMBER_OF_NON_IMPROVING_ITERATIONS, ts);
         double startTime = System.currentTimeMillis();
         System.out.println("solving with TS..");
         Solution localSearchSol = l.solve();
         localSearchSol.setTimeToSolve((System.currentTimeMillis() - startTime) / 1000.0);
         return localSearchSol;
+    }
+
+    /**
+     * Solves the specified instance using the multi-fit approach.
+     *
+     * @param instance - instance to be solved
+     * @return generated solution
+     */
+    private static Solution solveWithMultifit(Instance instance) {
+        System.out.println("solving with Multifit..");
+        double startTime = System.currentTimeMillis();
+        Solution sol = MultifitSolver.solve(instance, 0, 0, 7, null, null);
+        sol.setTimeToSolve((System.currentTimeMillis() - startTime)/1000.0);
+        return sol;
+    }
+
+    /**
+     * Solves the specified instance using the combine approach.
+     *
+     * @param instance   - instance to be solved
+     * @param trivialSol - trivial initial solution
+     * @return generated solution
+     */
+    private static Solution solveWithCombine(Instance instance, Solution trivialSol) {
+        System.out.println("solving with Combine..");
+        double startTime = System.currentTimeMillis();
+        int cmaxLPT = trivialSol.getMakespan();
+        double weirdSum = instance.getProcessingTimes().stream().mapToInt(Integer::intValue).sum() / instance.getNumOfMachines();
+        if (cmaxLPT >= 1.5 * weirdSum) {
+            return trivialSol;
+        } else {
+            double lbOne = cmaxLPT / ((double) 4 / 3 - (double) 1 / (3 * instance.getNumOfMachines()));
+            double lbTwo = Collections.max(instance.getProcessingTimes());
+            double lowerBound = Collections.max(Arrays.asList(lbOne, lbTwo, weirdSum));
+            double upperBound = cmaxLPT;
+            Solution sol = MultifitSolver.solve(instance, lowerBound, upperBound, 7, null, trivialSol.getMachineAllocations());
+            sol.setTimeToSolve((System.currentTimeMillis() - startTime) / 1000.0);
+            return sol;
+        }
+    }
+
+    /**
+     * Parses the prefix of the given path.
+     *
+     * @param path - path to parse prefix from
+     * @return prefix
+     */
+    private static String parsePrefix(String path) {
+        String[] pathArr = path.split("/");
+        StringBuilder prefix = new StringBuilder();
+        for (int i = 0; i < pathArr.length - 1; i++) {
+            prefix.append(pathArr[i]).append("/");
+        }
+        return prefix.toString();
+    }
+
+    /**
+     * Solves the specified instance using all the implemented approaches and writes the solutions as CSV.
+     *
+     * @param instance     - instance to be solved
+     * @param timeLimit    - time limit to be satisfied (relevant for CPLEX and TS)
+     * @param seed         - seed to initialize PRNG in TS
+     * @param numOfCores   - number of cores to be used in TS
+     * @param solutionPath - path to solution file
+     */
+    private static void solve(Instance instance, double timeLimit, int seed, int numOfCores, String solutionPath) {
+
+        Solution trivialSol = solveWithLPT(instance);
+        Solution solSPS = solveWithSPS(instance);
+        Solution mipSol = solveWithCPLEX(instance, timeLimit);
+        Solution multifitSol = solveWithMultifit(instance);
+        Solution combineSol = solveWithCombine(instance, trivialSol);
+        Solution bestInitialSol = combineSol.getMakespan() < solSPS.getMakespan() ? combineSol : solSPS;
+        Solution tabuSearchSolution = solveWithTabuSearch(instance, bestInitialSol, seed, numOfCores, timeLimit);
+
+        if (trivialSol.isFeasible() && solSPS.isFeasible() && mipSol.isFeasible() && multifitSol.isFeasible()
+            && combineSol.isFeasible() && tabuSearchSolution.isFeasible()) {
+
+                SolutionWriter.writeSolutionAsCSV(solutionPath, trivialSol, "LPT", timeLimit);
+                SolutionWriter.writeSolutionAsCSV(solutionPath, solSPS, "SPS", timeLimit);
+                SolutionWriter.writeSolutionAsCSV(solutionPath, multifitSol, "MF", timeLimit);
+                SolutionWriter.writeSolutionAsCSV(solutionPath, combineSol, "CB", timeLimit);
+                SolutionWriter.writeSolutionAsCSV(solutionPath, mipSol, "CPLEX", timeLimit);
+                SolutionWriter.writeSolutionAsCSV(solutionPath, tabuSearchSolution, "TS", timeLimit);
+        } else {
+            System.out.println("generated infeasible solution..");
+            System.exit(0);
+        }
     }
 
     public static void main(String[] args) {
@@ -79,41 +193,16 @@ public class Test {
             System.out.println("seed: " + args[4]);
         }
 
+        Instance instance = InstanceReader.readInstance(args[0], parsePrefix(args[0]));
+        String solutionPath = args[1];
         int numOfCores = Integer.parseInt(args[2]);
-        System.out.println("available number of cores: " + Runtime.getRuntime().availableProcessors());
         if (numOfCores > Runtime.getRuntime().availableProcessors()) {
             numOfCores = Runtime.getRuntime().availableProcessors();
             System.out.println("the specified number of cores exceeds the available number of cores: set to " + numOfCores + " cores.");
         }
-        long seed = Long.parseLong(args[4]);
+        double timeLimit = Double.parseDouble(args[3]);
+        int seed = Integer.parseInt(args[4]);
 
-        File dir = new File(INSTANCE_PREFIX + CURRENT_INSTANCE_SET + "/");
-        File[] directoryListing = dir.listFiles();
-        assert directoryListing != null;
-        Arrays.sort(directoryListing);
-
-        for (File file : directoryListing) {
-
-            String instanceName = file.toString().replace(INSTANCE_PREFIX + CURRENT_INSTANCE_SET + "/", "").replace(".txt", "");
-            System.out.println("working on: " + instanceName);
-            Instance instance = InstanceReader.readInstance(INSTANCE_PREFIX + CURRENT_INSTANCE_SET + "/" + instanceName + ".txt", INSTANCE_PREFIX + CURRENT_INSTANCE_SET + "/");
-            String solutionName = instanceName.replace("instance", "sol");
-
-            Solution trivialSol = solveWithLPT(instance);
-            Solution solSPS = solveWithSPS(instance);
-            Solution mipSol = solveWithCPLEX(instance);
-            Solution tabuSearchSolution = solveWithTabuSearch(instance, solSPS, seed, numOfCores);
-
-            if (trivialSol.isFeasible() && solSPS.isFeasible() && mipSol.isFeasible() && tabuSearchSolution.isFeasible()) {
-//                PCMAX.SolutionWriter.writeSolution(SOLUTION_PREFIX + solutionName + ".txt", sol);
-                SolutionWriter.writeSolutionAsCSV(SOLUTION_PREFIX + CURRENT_INSTANCE_SET + "_solutions.csv", trivialSol, "LPT", TIME_LIMIT);
-                SolutionWriter.writeSolutionAsCSV(SOLUTION_PREFIX + CURRENT_INSTANCE_SET + "_solutions.csv", solSPS, "SPS", TIME_LIMIT);
-                SolutionWriter.writeSolutionAsCSV(SOLUTION_PREFIX + CURRENT_INSTANCE_SET + "_solutions.csv", mipSol, "CPLEX", TIME_LIMIT);
-                SolutionWriter.writeSolutionAsCSV(SOLUTION_PREFIX + CURRENT_INSTANCE_SET + "_solutions.csv", tabuSearchSolution, "TS", TIME_LIMIT);
-            } else {
-                System.out.println("generated infeasible solution..");
-                System.exit(0);
-            }
-        }
+        solve(instance, timeLimit, seed, numOfCores, solutionPath);
     }
 }
