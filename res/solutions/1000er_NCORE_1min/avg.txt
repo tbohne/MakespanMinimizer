@@ -1,0 +1,7 @@
+avg runtime of LPT:  0.00
+avg runtime of SPS:  0.04
+avg runtime of TS:  59.37
+
+avg costs of LPT:  379794.20
+avg costs of SPS:  379794.20
+avg costs of TS:   376752.82

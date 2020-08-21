@@ -1,0 +1,9 @@
+avg runtime of LPT:     0.00
+avg runtime of SPS:     0.01
+avg runtime of CPLEX:  90.55
+avg runtime of TS:     20.58
+
+avg costs of LPT:    16872.70
+avg costs of SPS:    16846.70
+avg costs of CPLEX:  16754.20
+avg costs of TS:     16743.36
