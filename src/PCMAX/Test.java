@@ -2,9 +2,6 @@ package PCMAX;
 
 import PCMAX.local_search.*;
 
-import java.util.Arrays;
-import java.util.Collections;
-
 public class Test {
 
     /********************** CPLEX CONFIG **********************/
@@ -91,45 +88,6 @@ public class Test {
     }
 
     /**
-     * Solves the specified instance using the multi-fit approach.
-     *
-     * @param instance - instance to be solved
-     * @return generated solution
-     */
-    private static Solution solveWithMultifit(Instance instance) {
-        System.out.println("solving with Multifit..");
-        double startTime = System.currentTimeMillis();
-        Solution sol = MultifitSolver.solve(instance, 0, 0, 7, null, null);
-        sol.setTimeToSolve((System.currentTimeMillis() - startTime)/1000.0);
-        return sol;
-    }
-
-    /**
-     * Solves the specified instance using the combine approach.
-     *
-     * @param instance   - instance to be solved
-     * @param trivialSol - trivial initial solution
-     * @return generated solution
-     */
-    private static Solution solveWithCombine(Instance instance, Solution trivialSol) {
-        System.out.println("solving with Combine..");
-        double startTime = System.currentTimeMillis();
-        int cmaxLPT = trivialSol.getMakespan();
-        double weirdSum = instance.getProcessingTimes().stream().mapToInt(Integer::intValue).sum() / instance.getNumOfMachines();
-        if (cmaxLPT >= 1.5 * weirdSum) {
-            return trivialSol;
-        } else {
-            double lbOne = cmaxLPT / ((double) 4 / 3 - (double) 1 / (3 * instance.getNumOfMachines()));
-            double lbTwo = Collections.max(instance.getProcessingTimes());
-            double lowerBound = Collections.max(Arrays.asList(lbOne, lbTwo, weirdSum));
-            double upperBound = cmaxLPT;
-            Solution sol = MultifitSolver.solve(instance, lowerBound, upperBound, 7, null, trivialSol.getMachineAllocations());
-            sol.setTimeToSolve((System.currentTimeMillis() - startTime) / 1000.0);
-            return sol;
-        }
-    }
-
-    /**
      * Parses the prefix of the given path.
      *
      * @param path - path to parse prefix from
@@ -154,24 +112,16 @@ public class Test {
      * @param solutionPath - path to solution file
      */
     private static void solve(Instance instance, double timeLimit, int seed, int numOfCores, String solutionPath) {
-
         Solution trivialSol = solveWithLPT(instance);
         Solution solSPS = solveWithSPS(instance);
         Solution mipSol = solveWithCPLEX(instance, timeLimit);
-        Solution multifitSol = solveWithMultifit(instance);
-        Solution combineSol = solveWithCombine(instance, trivialSol);
-        Solution bestInitialSol = combineSol.getMakespan() < solSPS.getMakespan() ? combineSol : solSPS;
-        Solution tabuSearchSolution = solveWithTabuSearch(instance, bestInitialSol, seed, numOfCores, timeLimit);
+        Solution tabuSearchSolution = solveWithTabuSearch(instance, solSPS, seed, numOfCores, timeLimit);
 
-        if (trivialSol.isFeasible() && solSPS.isFeasible() && mipSol.isFeasible() && multifitSol.isFeasible()
-            && combineSol.isFeasible() && tabuSearchSolution.isFeasible()) {
-
-                SolutionWriter.writeSolutionAsCSV(solutionPath, trivialSol, "LPT", timeLimit);
-                SolutionWriter.writeSolutionAsCSV(solutionPath, solSPS, "SPS", timeLimit);
-                SolutionWriter.writeSolutionAsCSV(solutionPath, multifitSol, "MF", timeLimit);
-                SolutionWriter.writeSolutionAsCSV(solutionPath, combineSol, "CB", timeLimit);
-                SolutionWriter.writeSolutionAsCSV(solutionPath, mipSol, "CPLEX", timeLimit);
-                SolutionWriter.writeSolutionAsCSV(solutionPath, tabuSearchSolution, "TS", timeLimit);
+        if (trivialSol.isFeasible() && solSPS.isFeasible() && mipSol.isFeasible() && tabuSearchSolution.isFeasible()) {
+            SolutionWriter.writeSolutionAsCSV(solutionPath, trivialSol, "LPT", timeLimit);
+            SolutionWriter.writeSolutionAsCSV(solutionPath, solSPS, "SPS", timeLimit);
+            SolutionWriter.writeSolutionAsCSV(solutionPath, mipSol, "CPLEX", timeLimit);
+            SolutionWriter.writeSolutionAsCSV(solutionPath, tabuSearchSolution, "TS", timeLimit);
         } else {
             System.out.println("generated infeasible solution..");
             System.exit(0);
@@ -198,11 +148,11 @@ public class Test {
         int numOfCores = Integer.parseInt(args[2]);
         if (numOfCores > Runtime.getRuntime().availableProcessors()) {
             numOfCores = Runtime.getRuntime().availableProcessors();
-            System.out.println("the specified number of cores exceeds the available number of cores: set to " + numOfCores + " cores.");
+            System.out.println("the specified number of cores exceeds the available number of cores: set to "
+                    + numOfCores + " cores.");
         }
         double timeLimit = Double.parseDouble(args[3]);
         int seed = Integer.parseInt(args[4]);
-
         solve(instance, timeLimit, seed, numOfCores, solutionPath);
     }
 }
