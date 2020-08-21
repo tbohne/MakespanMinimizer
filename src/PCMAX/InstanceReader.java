@@ -6,8 +6,17 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Reads instances of the P||C_max problem.
+ */
 public class InstanceReader {
 
+    /**
+     * Reads the seeds from the specified file.
+     *
+     * @param filename - file to read seeds from
+     * @return read seeds
+     */
     public static List<Integer> readSeeds(String filename) {
 
         List<Integer> seeds = new ArrayList<>();
@@ -25,6 +34,13 @@ public class InstanceReader {
         return seeds;
     }
 
+    /**
+     * Reads an instance from the specified file.
+     *
+     * @param filename - file to read instance from
+     * @param prefix - instance prefix
+     * @return read instance
+     */
     public static Instance readInstance(String filename, String prefix) {
 
         int numOfMachines = 0;

@@ -10,7 +10,6 @@ public class LPTSolver {
     /**
      * Solves the specified instance.
      *
-     *
      * @param instance - instance to be solved
      * @return generated solution
      */

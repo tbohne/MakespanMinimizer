@@ -52,7 +52,6 @@ public class PartitionHeuristic {
 
         // construction
         for (int job = 1; job < jobs.size(); job++) {
-
             // compute partial solution with biggest gap
             PartialSolution maxGapPartSol = Collections.max(sol.getPartialSolutions());
 

@@ -8,7 +8,7 @@ import java.util.List;
  */
 public class PartialSolutionContainer {
 
-    private List<PartialSolution> partialSolutions;
+    private final List<PartialSolution> partialSolutions;
 
     /**
      * Constructor
